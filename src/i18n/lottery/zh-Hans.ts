@@ -128,11 +128,24 @@ export default {
 
     // 中奖结果弹窗
     notWonMessage: "很遗憾，本次未中奖，再接再厉！",
-    remainingToday: "今日剩余抽奖次数",
-    remainingTotal: "总共剩余抽奖次数",
+    remainingToday: "今日抽奖次数",
+    remainingTotal: "剩余总抽奖次数",
     viewPrizes: "查看奖品",
     continueDraw: "继续抽奖",
     tomorrowAgain: "明日再来",
+
+    // 其他页面文字
+    defaultTitle: "精彩抽奖活动",
+    defaultDescription: "快来参与这个精彩的抽奖活动，赢取丰厚奖品！",
+    backToList: "返回抽奖列表",
+    backToHome: "返回星际港",
+    dailyDraws: "今日抽奖次数",
+    drawButton: "抽奖按钮",
+    activityIcon: "活动图标",
+    prizeImage: "奖品图片",
+    joinGroup: "进群",
+    enjoyBenefits: "享福利",
+    joinGroupBenefits: "进群享福利",
   },
 
   // 我的记录页

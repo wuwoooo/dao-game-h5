@@ -39,7 +39,7 @@ export default {
     helpDraws: "Assist Draws",
     totalRemaining: "Total Remaining",
     todayRemaining: "Today Remaining",
-    helpAssistDraws: "Assist Draw Count",
+    helpAssistDraws: "Assist Draws",
 
     // Help Feature
     inviteFriends: "Invite Friends",
@@ -129,11 +129,25 @@ export default {
 
     // Prize Result Modal
     notWonMessage: "Sorry, no prize this time. Try again!",
-    remainingToday: "Remaining draws today",
-    remainingTotal: "Total remaining draws",
+    remainingToday: "Today's Draws",
+    remainingTotal: "Total Draws Left",
     viewPrizes: "View Prizes",
     continueDraw: "Continue Drawing",
     tomorrowAgain: "Try Tomorrow",
+
+    // Other page texts
+    defaultTitle: "Amazing Lottery Event",
+    defaultDescription:
+      "Join this exciting lottery event and win amazing prizes!",
+    backToList: "Back to Lottery List",
+    backToHome: "Back to Home",
+    dailyDraws: "Today's Draws",
+    drawButton: "Draw Button",
+    activityIcon: "Activity Icon",
+    prizeImage: "Prize Image",
+    joinGroup: "Join Group",
+    enjoyBenefits: "Enjoy Benefits",
+    joinGroupBenefits: "Join Group for Benefits",
   },
 
   // My Lottery Page

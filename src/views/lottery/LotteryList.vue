@@ -346,6 +346,18 @@ async function checkUrlParamsAndGetUserInfo() {
   const queryParams = getQueryParams();
   const { uid, uuid, token } = queryParams;
 
+  // 检查是否接收到空值参数（uid=&uuid=&token=）
+  const hasEmptyParams =
+    (uid === "" || uuid === "" || token === "") &&
+    (uid !== undefined || uuid !== undefined || token !== undefined);
+
+  if (hasEmptyParams) {
+    console.log("检测到空值参数，清除本地用户缓存...", { uid, uuid, token });
+    clearUserInfo();
+    userInfo.value = null;
+    return;
+  }
+
   // 如果URL中包含这三个参数，则清除现有缓存并执行自动登录
   if (uid && uuid && token) {
     try {

@@ -45,7 +45,7 @@
           <h1
             class="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-300"
           >
-            {{ lottery?.name || "Web3抽奖" }}
+            {{ lottery?.name || t("lottery.lotteryDetail.title") }}
           </h1>
         </div>
         <div class="flex space-x-3">
@@ -87,7 +87,7 @@
                 d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
               />
             </svg>
-            分享
+            {{ t("lottery.components.shareModal.title") }}
           </button>
           <button
             v-if="!isLoggedIn()"
@@ -471,7 +471,7 @@
                             letter-spacing: 1px;
                           "
                         >
-                          抽奖
+                          {{ t("lottery.lotteryDetail.draw") }}
                         </div>
                       </div>
                     </div>
@@ -481,14 +481,14 @@
                       :class="{
                         'animate-[spin_5s_linear_infinite]': !isDrawing,
                       }"
-                      style="border-color: rgba(255, 215, 0, 0.9)"
+                      style="border-color: rgba(218, 62, 54, 0.9)"
                     ></div>
                     <div
                       class="absolute inset-2 rounded-full border-2 border-dashed"
                       :class="{
                         'animate-[spin_8s_linear_infinite_reverse]': !isDrawing,
                       }"
-                      style="border-color: rgba(255, 193, 7, 0.7)"
+                      style="border-color: rgba(218, 62, 54, 0.7)"
                     ></div>
                     <!-- 外层光环效果 -->
                     <div
@@ -496,14 +496,14 @@
                       :class="{
                         'animate-[spin_3s_linear_infinite]': !isDrawing,
                       }"
-                      style="border-color: rgba(255, 165, 0, 0.8)"
+                      style="border-color: rgba(218, 62, 54, 0.8)"
                     ></div>
                     <div
                       class="absolute -inset-6 rounded-full border"
                       :class="{
                         'animate-[spin_4s_linear_infinite_reverse]': !isDrawing,
                       }"
-                      style="border-color: rgba(255, 215, 0, 0.6)"
+                      style="border-color: rgba(218, 62, 54, 0.6)"
                     ></div>
                     <!-- 脉冲光环 -->
                     <div
@@ -514,8 +514,8 @@
                       style="
                         background: linear-gradient(
                           to right,
-                          rgba(255, 215, 0, 0.6),
-                          rgba(255, 165, 0, 0.6)
+                          rgba(218, 62, 54, 0.6),
+                          rgba(201, 42, 42, 0.6)
                         );
                       "
                     ></div>
@@ -533,7 +533,9 @@
                   'button-click-effect': !isDrawing,
                 }"
               >
-                <span class="sr-only">抽奖按钮</span>
+                <span class="sr-only">{{
+                  t("lottery.lotteryDetail.drawButton")
+                }}</span>
               </button>
             </div>
           </div>
@@ -545,19 +547,25 @@
               <div class="bg-white/5 backdrop-blur-sm p-3 rounded-lg">
                 <div class="grid grid-cols-3 gap-4">
                   <div class="flex flex-col items-center">
-                    <div class="text-xs text-indigo-300 mb-1">今日可抽次数</div>
+                    <div class="text-xs text-indigo-300 mb-1">
+                      {{ t("lottery.lotteryDetail.dailyDraws") }}
+                    </div>
                     <div class="text-xl font-bold text-white">
                       {{ drawInfo.remainingDrawsToday || 0 }}
                     </div>
                   </div>
                   <div class="flex flex-col items-center">
-                    <div class="text-xs text-indigo-300 mb-1">剩余可抽总数</div>
+                    <div class="text-xs text-indigo-300 mb-1">
+                      {{ t("lottery.lotteryDetail.remainingTotal") }}
+                    </div>
                     <div class="text-xl font-bold text-white">
                       {{ drawInfo.remainingDraws || 0 }}
                     </div>
                   </div>
                   <div class="flex flex-col items-center">
-                    <div class="text-xs text-indigo-300 mb-1">获得助力次数</div>
+                    <div class="text-xs text-indigo-300 mb-1">
+                      {{ t("lottery.lotteryDetail.helpAssistDraws") }}
+                    </div>
                     <div class="text-xl font-bold text-green-400">
                       {{ totalHelpDraws || 0 }}
                     </div>
@@ -570,7 +578,7 @@
                 @click="refreshDrawCounts"
                 :disabled="refreshing"
                 class="absolute -right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg z-10"
-                title="刷新次数"
+                :title="t('lottery.lotteryDetail.refreshDraws')"
                 style="margin-top: 8px; margin-right: -35px"
               >
                 <svg
@@ -631,7 +639,7 @@
                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
-                邀请好友助力
+                {{ t("lottery.lotteryDetail.inviteFriends") }}
               </button>
             </div>
           </div>
@@ -681,7 +689,7 @@
                     <!-- 关闭的盲盒背景图片 -->
                     <img
                       src="/blindbox1.png"
-                      alt="关闭的盲盒"
+                      :alt="t('lottery.lotteryDetail.closedBlindbox')"
                       class="absolute inset-0 w-full h-full object-cover transition-all duration-1000"
                       :class="{
                         'scale-105 brightness-110': !isDrawing,
@@ -736,21 +744,21 @@
                       <!-- 外层旋转 -->
                       <img
                         src="/blindbox3.png"
-                        alt="星爆能量"
+                        :alt="t('lottery.lotteryDetail.prizeImage')"
                         class="absolute inset-0 w-full h-full object-cover animate-spin-reverse brightness-200"
                         style="transform: scale(1.2)"
                       />
                       <!-- 中层旋转 -->
                       <img
                         src="/blindbox3.png"
-                        alt="星爆能量"
+                        :alt="t('lottery.lotteryDetail.prizeImage')"
                         class="absolute inset-0 w-full h-full object-cover animate-spin-slow brightness-175"
                         style="transform: scale(1.1); opacity: 0.9"
                       />
                       <!-- 内层旋转 -->
                       <img
                         src="/blindbox3.png"
-                        alt="星爆能量"
+                        :alt="t('lottery.lotteryDetail.prizeImage')"
                         class="absolute inset-0 w-full h-full object-cover animate-spin-fast brightness-150"
                         style="transform: scale(1); opacity: 0.8"
                       />
@@ -823,7 +831,7 @@
                     <!-- 打开的盲盒背景图片 -->
                     <img
                       src="/blindbox2.png"
-                      alt="打开的盲盒"
+                      :alt="t('lottery.lotteryDetail.openedBlindbox')"
                       class="absolute inset-0 w-full h-full object-cover transition-all duration-1000 brightness-125"
                       :class="{
                         'scale-105': true,
@@ -900,7 +908,7 @@
                   @click="refreshDrawCounts"
                   :disabled="refreshing"
                   class="absolute -right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg z-10"
-                  title="刷新次数"
+                  :title="t('lottery.lotteryDetail.refreshDraws')"
                   style="margin-top: 8px; margin-right: -35px"
                 >
                   <svg
@@ -961,7 +969,7 @@
                       d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                   </svg>
-                  邀请好友助力
+                  {{ t("lottery.lotteryDetail.inviteFriends") }}
                 </button>
               </div>
             </div>
@@ -1040,7 +1048,7 @@
         >
           <img
             :src="getSafeImageUrl(lottery?.icon)"
-            alt="活动图标"
+            :alt="t('lottery.lotteryDetail.activityIcon')"
             class="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover shadow-xl mb-4 md:mb-0 md:mr-6"
           />
 
@@ -1052,10 +1060,15 @@
               class="mb-2 flex flex-wrap justify-center md:justify-start gap-2"
             >
               <span class="text-xs px-3 py-1 rounded-full bg-indigo-600">
-                {{ lottery.lotteryType === "wheel" ? "大转盘" : "盲盒" }}
+                {{
+                  lottery.lotteryType === "wheel"
+                    ? t("lottery.lotteryList.wheel")
+                    : t("lottery.lotteryList.blindbox")
+                }}
               </span>
               <span class="text-xs px-3 py-1 rounded-full bg-purple-600">
-                主办方: {{ lottery.sponsor }}
+                {{ t("lottery.lotteryDetail.sponsorLabel") }}:
+                {{ lottery.sponsor }}
               </span>
             </div>
             <p class="opacity-80 mb-4">{{ lottery.description }}</p>
@@ -1102,7 +1115,11 @@
             </div>
 
             <h3 class="text-2xl font-bold text-white mb-3">
-              {{ drawResult.win ? "恭喜中奖!" : "未中奖" }}
+              {{
+                drawResult.win
+                  ? t("lottery.lotteryDetail.congratulations")
+                  : t("lottery.lotteryDetail.notWin")
+              }}
             </h3>
 
             <div
@@ -1173,7 +1190,9 @@
         >
           <!-- 弹窗头部 -->
           <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-bold text-white">好友助力</h3>
+            <h3 class="text-2xl font-bold text-white">
+              {{ t("lottery.components.helpInvite.title") }}
+            </h3>
             <button
               @click="closeHelpModal"
               class="text-indigo-300 hover:text-white transition-colors"
@@ -1264,7 +1283,7 @@
                     d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
-                邀请好友助力
+                {{ t("lottery.lotteryDetail.inviteFriends") }}
               </button>
             </div>
 
@@ -1312,7 +1331,9 @@
             <div class="relative h-36 overflow-hidden">
               <!-- 谢谢参与奖项显示特殊占位符 -->
               <div
-                v-if="prize.name === '谢谢参与'"
+                v-if="
+                  prize.name === t('lottery.lotteryDetail.thanksParticipation')
+                "
                 class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-600 to-gray-800"
               >
                 <div class="text-center text-white">
@@ -1333,7 +1354,7 @@
               <img
                 v-else
                 :src="getSafeImageUrl(prize.image)"
-                alt="奖品图片"
+                :alt="t('lottery.lotteryDetail.prizeImage')"
                 class="w-full h-full object-cover"
               />
               <div
@@ -1487,12 +1508,9 @@
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
               />
             </svg>
-            <span class="text-sm font-medium" style="font-family: inherit"
-              >进群</span
-            >
-          </div>
-          <div class="text-sm font-medium" style="font-family: inherit">
-            享福利
+            <span class="text-sm font-medium" style="font-family: inherit">{{
+              t("lottery.lotteryDetail.joinGroupBenefits")
+            }}</span>
           </div>
         </div>
       </button>
@@ -1511,6 +1529,7 @@ import {
   inject,
 } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import {
   clearTempToken,
   getLotteryDetail,
@@ -1536,6 +1555,7 @@ import message from "../../utils/message";
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const openLoginReminder = inject("openLoginReminder") as (
   message?: string,
   helpMode?: boolean
@@ -1652,12 +1672,12 @@ const shareUrl = computed(() => {
 });
 
 const shareTitle = computed(() => {
-  return lottery.value?.name || "精彩抽奖活动";
+  return lottery.value?.name || t("lottery.lotteryDetail.defaultTitle");
 });
 
 const shareText = computed(() => {
   return (
-    lottery.value?.description || "快来参与这个精彩的抽奖活动，赢取丰厚奖品！"
+    lottery.value?.description || t("lottery.lotteryDetail.defaultDescription")
   );
 });
 
@@ -1671,12 +1691,12 @@ const backButtonConfig = computed(() => {
   if (direct === "1") {
     return {
       to: "/lottery",
-      text: "返回抽奖列表",
+      text: t("lottery.lotteryDetail.backToList"),
     };
   } else {
     return {
       to: "/",
-      text: "返回星际港",
+      text: t("lottery.lotteryDetail.backToHome"),
     };
   }
 });
