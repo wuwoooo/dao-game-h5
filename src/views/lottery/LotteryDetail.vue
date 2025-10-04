@@ -1,6 +1,7 @@
 <template>
   <div
     class="lottery-detail min-h-screen bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#334155] relative overflow-hidden w-full max-w-full"
+    :class="appTopOffsetClass"
   >
     <!-- 宇宙星空背景 -->
     <div class="stars-container absolute inset-0 z-0 overflow-hidden">
@@ -28,7 +29,7 @@
       >
         <div class="flex items-center">
           <div
-            @click="$router.back()"
+            @click="handleBackClick"
             class="text-indigo-300 mr-3 hover:text-indigo-200 transition-colors flex items-center cursor-pointer"
           >
             <svg
@@ -44,31 +45,10 @@
           <h1
             class="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-300"
           >
-            {{ lottery?.name || "数字藏品抽奖" }}
+            {{ lottery?.name || "Web3抽奖" }}
           </h1>
         </div>
         <div class="flex space-x-3">
-          <!-- 分享按钮 -->
-          <button
-            @click="openShareModal"
-            class="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-sm rounded-lg transition-all flex items-center shadow-lg hover:shadow-purple-500/50"
-          >
-            <svg
-              class="w-4 h-4 mr-1.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-              />
-            </svg>
-            <span>分享</span>
-          </button>
-
           <button
             v-if="isLoggedIn()"
             @click="goToMyLottery"
@@ -88,11 +68,30 @@
               <path d="M12 11v6"></path>
               <path d="M9 14h6"></path>
             </svg>
-            我的记录
+          </button>
+          <!-- 分享按钮 -->
+          <button
+            @click="openShareModal"
+            class="px-4 py-2 bg-gradient-to-r from-green-500/20 to-blue-500/20 backdrop-blur-sm rounded-lg text-indigo-100 hover:from-green-500/30 hover:to-blue-500/30 transition-all border border-indigo-400/20 flex items-center"
+          >
+            <svg
+              class="w-4 h-4 mr-1"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+              />
+            </svg>
+            分享
           </button>
           <button
             v-if="!isLoggedIn()"
-            @click="openLoginModal"
+            @click="() => openLoginReminder()"
             class="px-4 py-2 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 backdrop-blur-sm rounded-lg text-indigo-100 hover:from-purple-500/30 hover:to-indigo-500/30 transition-all border border-indigo-400/20 flex items-center"
           >
             <svg
@@ -154,7 +153,7 @@
             重新连接
           </button>
           <router-link
-            to="/lottery"
+            :to="backButtonConfig.to"
             class="px-5 py-2 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-100 rounded-lg transition-all flex items-center"
           >
             <svg
@@ -167,7 +166,7 @@
               <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
               <polyline points="9 22 9 12 15 12 15 22" />
             </svg>
-            返回星际港
+            {{ backButtonConfig.text }}
           </router-link>
         </div>
       </div>
@@ -259,7 +258,7 @@
       <div class="text-2xl text-indigo-200 mb-4">星域已坍缩</div>
       <p class="text-indigo-300/70 mb-6">该活动已消失于宇宙尘埃，或从未存在</p>
       <router-link
-        to="/lottery"
+        :to="backButtonConfig.to"
         class="px-6 py-3 bg-gradient-to-r from-purple-600/30 to-indigo-600/30 hover:from-purple-600/50 hover:to-indigo-600/50 border border-indigo-500/30 rounded-lg text-indigo-100 transition-all flex items-center"
       >
         <svg
@@ -272,75 +271,11 @@
           <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
           <polyline points="9 22 9 12 15 12 15 22" />
         </svg>
-        返回星际港
+        {{ backButtonConfig.text }}
       </router-link>
     </div>
 
     <div v-else class="max-w-7xl mx-auto px-2 sm:px-4 py-8">
-      <!-- 活动详情头部 -->
-      <div class="relative mb-10 overflow-hidden rounded-xl">
-        <!-- 背景图层（模糊） -->
-        <div
-          class="absolute inset-0"
-          :style="{
-            backgroundImage: lottery?.background
-              ? `url(${lottery.background})`
-              : `url(${randomBackground(lottery?.id || 0)})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'blur(6px)',
-            transform: 'scale(1.1)',
-            zIndex: 0,
-          }"
-        ></div>
-
-        <!-- 半透明遮罩层（让内容更清晰） -->
-        <div class="absolute inset-0 bg-black/40 z-[1]"></div>
-
-        <!-- Glassmorphism 内容容器 -->
-        <div
-          class="relative z-[2] p-6 md:p-8 flex flex-col md:flex-row items-center backdrop-blur-md bg-white/10 border border-white/20 rounded-xl shadow-lg ring-1 ring-white/10 transition-all"
-        >
-          <img
-            :src="lottery?.icon || randomIcon(lottery?.id || 0)"
-            alt="活动图标"
-            class="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover shadow-xl mb-4 md:mb-0 md:mr-6"
-          />
-
-          <div class="flex-1 text-center md:text-left text-white">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">
-              {{ lottery.name }}
-            </h1>
-            <div
-              class="mb-2 flex flex-wrap justify-center md:justify-start gap-2"
-            >
-              <span class="text-xs px-3 py-1 rounded-full bg-indigo-600">
-                {{ lottery.lotteryType === "wheel" ? "大转盘" : "盲盒" }}
-              </span>
-              <span class="text-xs px-3 py-1 rounded-full bg-purple-600">
-                主办方: {{ lottery.sponsor }}
-              </span>
-            </div>
-            <p class="opacity-80 mb-4">{{ lottery.description }}</p>
-            <div class="opacity-60 text-sm">
-              <div>
-                活动时间: {{ formatDate(lottery.startTime) }} 至
-                {{ formatDate(lottery.endTime) }}
-              </div>
-              <div v-if="lottery.rule">
-                <span
-                  >每人总共 {{ lottery.rule.drawLimit }} 次机会，每天限
-                  {{ lottery.rule.dailyLimit }} 次</span
-                >
-                <span v-if="lottery.rule.additionalInfo">
-                  · {{ lottery.rule.additionalInfo }}</span
-                >
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 大转盘抽奖 -->
       <div
         v-if="lottery?.lotteryType === 'wheel'"
@@ -350,10 +285,10 @@
           <!-- 转盘装饰外圈 -->
           <div class="relative mx-auto max-w-md">
             <div
-              class="absolute -top-2 -left-2 -right-2 -bottom-2 rounded-full bg-gradient-to-br from-indigo-600/60 to-purple-600/60 animate-[spin_10s_linear_infinite] blur-[2px]"
+              class="absolute -top-2 -left-2 -right-2 -bottom-2 rounded-full bg-gradient-to-br from-indigo-600/60 to-purple-600/60 animate-[spin_10s_linear_infinite] blur-[2px] z-0"
             ></div>
             <div
-              class="absolute -top-2 -left-2 -right-2 -bottom-2 rounded-full bg-gradient-to-tl from-pink-500/30 to-indigo-500/30 animate-[spin_15s_linear_infinite_reverse] blur-[3px]"
+              class="absolute -top-2 -left-2 -right-2 -bottom-2 rounded-full bg-gradient-to-tl from-pink-500/30 to-indigo-500/30 animate-[spin_15s_linear_infinite_reverse] blur-[3px] z-0"
             ></div>
 
             <div class="relative">
@@ -403,21 +338,30 @@
                         :y1="50"
                         :x2="
                           50 +
-                          50 * Math.cos((index * sectorAngle * Math.PI) / 180)
+                          50 *
+                            Math.sin(
+                              ((index + 1) * sectorAngle * Math.PI) / 180
+                            )
                         "
                         :y2="
                           50 -
-                          50 * Math.sin((index * sectorAngle * Math.PI) / 180)
+                          50 *
+                            Math.cos(
+                              ((index + 1) * sectorAngle * Math.PI) / 180
+                            )
                         "
                         stroke="#ffffff"
                         stroke-width="0.3"
                         stroke-opacity="0.5"
                       />
 
-                      <!-- 奖品图片 (如果有) -->
+                      <!-- 奖品图片 (如果有且不是谢谢参与) -->
                       <image
-                        v-if="prize.image"
-                        :href="prize.image"
+                        v-if="
+                          prize.name !== '谢谢参与' &&
+                          getSafeImageUrl(prize.image)
+                        "
+                        :href="getSafeImageUrl(prize.image)"
                         :x="getImagePosition(index).x"
                         :y="getImagePosition(index).y"
                         height="15"
@@ -433,7 +377,7 @@
                       />
                       <text
                         fill="white"
-                        font-size="4.5"
+                        font-size="4"
                         font-weight="bold"
                         class="wheel-prize-text"
                       >
@@ -486,25 +430,94 @@
 
                   <!-- 中心按钮 -->
                   <div
-                    class="w-24 h-24 relative bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(234,179,8,0.5)]"
+                    class="w-24 h-24 relative rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(255,215,0,0.8),0_0_40px_rgba(255,193,7,0.6),inset_0_2px_4px_rgba(0,0,0,0.3)]"
+                    :class="{
+                      'animate-pulse-button': !isDrawing,
+                    }"
+                    style="
+                      background: linear-gradient(
+                        135deg,
+                        #ffd700 0%,
+                        #ffa500 50%,
+                        #ff8c00 100%
+                      );
+                    "
                   >
                     <div
-                      class="absolute inset-1 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full flex items-center justify-center shadow-inner"
+                      class="absolute inset-1 rounded-full flex items-center justify-center shadow-inner"
+                      style="
+                        background: linear-gradient(
+                          135deg,
+                          #fff8dc 0%,
+                          #ffd700 50%,
+                          #ffa500 100%
+                        );
+                      "
                     >
                       <div
                         class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-inner"
                       >
-                        <div class="text-indigo-700 font-bold text-xl">
-                          开始
+                        <div
+                          class="font-bold text-xl"
+                          :class="{
+                            'animate-text-glow': !isDrawing,
+                          }"
+                          style="
+                            color: #ffd700;
+                            text-shadow: 2px 2px 0px #b8860b,
+                              4px 4px 8px rgba(0, 0, 0, 0.6), 0 0 15px #ffd700,
+                              0 0 25px #ffa500;
+                            font-weight: 900;
+                            letter-spacing: 1px;
+                          "
+                        >
+                          抽奖
                         </div>
                       </div>
                     </div>
                     <!-- 旋转光效 -->
                     <div
-                      class="absolute inset-0 rounded-full border-2 border-yellow-300/50 animate-[spin_5s_linear_infinite]"
+                      class="absolute inset-0 rounded-full border-2"
+                      :class="{
+                        'animate-[spin_5s_linear_infinite]': !isDrawing,
+                      }"
+                      style="border-color: rgba(255, 215, 0, 0.9)"
                     ></div>
                     <div
-                      class="absolute inset-2 rounded-full border-2 border-dashed border-yellow-300/30 animate-[spin_8s_linear_infinite_reverse]"
+                      class="absolute inset-2 rounded-full border-2 border-dashed"
+                      :class="{
+                        'animate-[spin_8s_linear_infinite_reverse]': !isDrawing,
+                      }"
+                      style="border-color: rgba(255, 193, 7, 0.7)"
+                    ></div>
+                    <!-- 外层光环效果 -->
+                    <div
+                      class="absolute -inset-4 rounded-full border-2"
+                      :class="{
+                        'animate-[spin_3s_linear_infinite]': !isDrawing,
+                      }"
+                      style="border-color: rgba(255, 165, 0, 0.8)"
+                    ></div>
+                    <div
+                      class="absolute -inset-6 rounded-full border"
+                      :class="{
+                        'animate-[spin_4s_linear_infinite_reverse]': !isDrawing,
+                      }"
+                      style="border-color: rgba(255, 215, 0, 0.6)"
+                    ></div>
+                    <!-- 脉冲光环 -->
+                    <div
+                      class="absolute -inset-8 rounded-full"
+                      :class="{
+                        'animate-pulse-ring': !isDrawing,
+                      }"
+                      style="
+                        background: linear-gradient(
+                          to right,
+                          rgba(255, 215, 0, 0.6),
+                          rgba(255, 165, 0, 0.6)
+                        );
+                      "
                     ></div>
                   </div>
                 </div>
@@ -513,9 +526,11 @@
               <!-- 抽奖按钮 -->
               <button
                 @click="handleDrawClick"
-                class="absolute inset-0 m-auto w-24 h-24 rounded-full flex items-center justify-center text-indigo-900 font-bold text-xl transform hover:scale-105 transition-all z-30 focus:outline-none focus:ring focus:ring-yellow-300/50 cursor-pointer"
+                :disabled="isDrawing"
+                class="absolute inset-0 m-auto w-24 h-24 rounded-full flex items-center justify-center text-indigo-900 font-bold text-xl transform hover:scale-110 hover:shadow-[0_0_25px_rgba(234,179,8,0.8)] active:scale-95 transition-all duration-300 z-30 focus:outline-none focus:ring focus:ring-yellow-300/50 cursor-pointer button-hover-effect"
                 :class="{
-                  'opacity-50 cursor-not-allowed': !canDraw || isDrawing,
+                  'opacity-50 cursor-not-allowed': isDrawing,
+                  'button-click-effect': !isDrawing,
                 }"
               >
                 <span class="sr-only">抽奖按钮</span>
@@ -524,30 +539,62 @@
           </div>
 
           <!-- 抽奖信息 -->
-          <div class="text-center mt-8 space-y-2">
-            <div
-              v-if="isLoggedIn()"
-              class="bg-white/5 backdrop-blur-sm p-3 rounded-lg inline-block"
-            >
-              <div class="grid grid-cols-2 gap-4">
-                <div class="flex flex-col items-center">
-                  <div class="text-xs text-indigo-300 mb-1">今日剩余次数</div>
-                  <div class="text-xl font-bold text-white">
-                    {{ drawInfo.remainingDrawsToday || 0 }}
+          <div class="mt-8 space-y-2">
+            <div v-if="isLoggedIn()" class="relative inline-block mx-auto">
+              <!-- 次数显示框 -->
+              <div class="bg-white/5 backdrop-blur-sm p-3 rounded-lg">
+                <div class="grid grid-cols-3 gap-4">
+                  <div class="flex flex-col items-center">
+                    <div class="text-xs text-indigo-300 mb-1">今日可抽次数</div>
+                    <div class="text-xl font-bold text-white">
+                      {{ drawInfo.remainingDrawsToday || 0 }}
+                    </div>
                   </div>
-                </div>
-                <div class="flex flex-col items-center">
-                  <div class="text-xs text-indigo-300 mb-1">总剩余次数</div>
-                  <div class="text-xl font-bold text-white">
-                    {{ drawInfo.remainingDraws || 0 }}
+                  <div class="flex flex-col items-center">
+                    <div class="text-xs text-indigo-300 mb-1">剩余可抽总数</div>
+                    <div class="text-xl font-bold text-white">
+                      {{ drawInfo.remainingDraws || 0 }}
+                    </div>
+                  </div>
+                  <div class="flex flex-col items-center">
+                    <div class="text-xs text-indigo-300 mb-1">获得助力次数</div>
+                    <div class="text-xl font-bold text-green-400">
+                      {{ totalHelpDraws || 0 }}
+                    </div>
                   </div>
                 </div>
               </div>
+
+              <!-- 刷新按钮 -->
+              <button
+                @click="refreshDrawCounts"
+                :disabled="refreshing"
+                class="absolute -right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg z-10"
+                title="刷新次数"
+                style="margin-top: 8px; margin-right: -35px"
+              >
+                <svg
+                  :class="[
+                    'w-4 h-4 text-white',
+                    { 'animate-spin': refreshing },
+                  ]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+              </button>
             </div>
 
             <div v-else>
               <button
-                @click="openLoginModal"
+                @click="() => openLoginReminder()"
                 class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all flex mx-auto items-center shadow-lg shadow-indigo-900/30"
               >
                 <svg
@@ -562,6 +609,29 @@
                   <line x1="15" y1="12" x2="3" y2="12"></line>
                 </svg>
                 连接Web3钱包
+              </button>
+            </div>
+
+            <!-- 邀请好友助力按钮 -->
+            <div v-if="helpConfig?.helpEnabled" class="mt-4 relative z-10">
+              <button
+                @click="openHelpModal"
+                class="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all font-medium flex items-center mx-auto relative z-10"
+              >
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                邀请好友助力
               </button>
             </div>
           </div>
@@ -587,175 +657,207 @@
             <div class="flex flex-wrap justify-center gap-6">
               <!-- 盲盒容器 -->
               <div
-                class="relative w-64 h-64 perspective-1000"
-                :class="{ 'pointer-events-none': isDrawing || !canDraw }"
+                class="relative w-80 h-80 perspective-1000"
+                :class="{ 'pointer-events-none': isDrawing }"
               >
-                <!-- 盲盒 -->
+                <!-- 盲盒动画阶段控制 -->
                 <div
                   ref="boxRef"
-                  class="relative w-full h-full transform-style-3d transition-transform duration-1000"
-                  :class="{ 'box-open': boxOpened }"
+                  class="relative w-full h-full transform-style-3d transition-all duration-1000"
+                  :class="{
+                    'opacity-50 cursor-not-allowed': isDrawing,
+                    'cursor-pointer': !isDrawing,
+                  }"
                   @click="handleDrawClick"
                 >
-                  <!-- 盲盒正面 -->
+                  <!-- 阶段1: 初始状态 - 关闭的盲盒 -->
                   <div
-                    class="absolute inset-0 backface-hidden bg-gradient-to-br from-indigo-600 to-purple-700 rounded-lg shadow-2xl flex items-center justify-center border border-indigo-500/30"
+                    v-if="blindboxStage === 'initial'"
+                    class="absolute inset-0 backface-hidden rounded-lg shadow-2xl flex items-center justify-center border border-indigo-500/30 overflow-hidden"
+                    :class="{
+                      'animate-pulse-glow': !isDrawing,
+                    }"
                   >
-                    <!-- 盒子内容 -->
-                    <div class="text-center p-4 relative">
-                      <!-- 光效 -->
-                      <div
-                        class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.1),transparent_70%)]"
-                      ></div>
+                    <!-- 关闭的盲盒背景图片 -->
+                    <img
+                      src="/blindbox1.png"
+                      alt="关闭的盲盒"
+                      class="absolute inset-0 w-full h-full object-cover transition-all duration-1000"
+                      :class="{
+                        'scale-105 brightness-110': !isDrawing,
+                        'scale-100 brightness-100': isDrawing,
+                      }"
+                    />
 
-                      <!-- 礼物图标 -->
+                    <!-- 中心内容 -->
+                    <div class="relative z-10 text-center">
                       <div
-                        class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center"
+                        class="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-purple-500/30 to-blue-500/30 rounded-full flex items-center justify-center animate-pulse-glow"
                       >
-                        <div
-                          class="absolute inset-0 bg-indigo-500/20 rounded-full animate-ping opacity-70"
-                        ></div>
                         <div
                           class="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg"
                         >
-                          <i class="fas fa-gift text-white text-3xl"></i>
-                        </div>
-                      </div>
-
-                      <div
-                        class="text-white font-bold text-2xl mb-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
-                      >
-                        盲盒
-                      </div>
-                      <div class="text-white text-sm opacity-90">
-                        链上奇遇 点击开启
-                      </div>
-
-                      <!-- 粒子效果 -->
-                      <div class="particles">
-                        <div
-                          v-for="i in 12"
-                          :key="`particle-${i}`"
-                          class="particle absolute w-1 h-1 rounded-full bg-white"
-                          :style="{
-                            top: `${Math.random() * 100}%`,
-                            left: `${Math.random() * 100}%`,
-                            opacity: Math.random() * 0.5 + 0.3,
-                            animationDelay: `${Math.random() * 2}s`,
-                            animationDuration: `${Math.random() * 3 + 2}s`,
-                          }"
-                        ></div>
-                      </div>
-                    </div>
-
-                    <!-- 装饰元素 -->
-                    <div
-                      class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-yellow-400 to-pink-500 rounded-t-lg"
-                    ></div>
-                    <div
-                      class="absolute w-20 h-6 bg-gradient-to-r from-purple-400 to-indigo-500 rounded-lg top-6 left-1/2 transform -translate-x-1/2"
-                    ></div>
-
-                    <!-- 丝带 -->
-                    <div
-                      class="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-full pointer-events-none"
-                    >
-                      <div
-                        class="absolute top-0 w-full h-full border-l-[12px] border-l-pink-500 border-r-[12px] border-r-pink-500"
-                      ></div>
-                    </div>
-                    <div
-                      class="absolute top-1/2 left-0 transform -translate-y-1/2 w-full h-8 pointer-events-none"
-                    >
-                      <div
-                        class="absolute left-0 w-full h-full border-t-[12px] border-t-pink-500 border-b-[12px] border-b-pink-500"
-                      ></div>
-                    </div>
-                    <div
-                      class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-pink-500 rounded-full flex items-center justify-center shadow-md z-10 pointer-events-none"
-                    >
-                      <div
-                        class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-pink-500 rounded-full flex items-center justify-center"
-                      >
-                        <i class="fas fa-question text-white text-2xl"></i>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- 盲盒背面 (打开后显示结果) -->
-                  <div
-                    class="absolute inset-0 backface-hidden rotateY-180 bg-gradient-to-br from-yellow-400 to-orange-600 rounded-lg shadow-2xl flex items-center justify-center border border-yellow-300/30"
-                  >
-                    <div v-if="drawResult" class="text-center p-6 relative">
-                      <!-- 结果光效 -->
-                      <div
-                        class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2),transparent_70%)]"
-                      ></div>
-
-                      <!-- 中奖图标/未中图标 -->
-                      <div class="relative w-24 h-24 mx-auto mb-6">
-                        <div
-                          v-if="drawResult.win"
-                          class="absolute inset-0 bg-yellow-400/20 rounded-full animate-pulse"
-                        ></div>
-                        <div
-                          v-if="drawResult.win"
-                          class="w-full h-full bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full flex items-center justify-center shadow-lg"
-                        >
-                          <i class="fas fa-crown text-white text-4xl"></i>
-                        </div>
-                        <div
-                          v-else
-                          class="w-full h-full bg-gradient-to-br from-gray-500 to-gray-700 rounded-full flex items-center justify-center shadow-lg"
-                        >
                           <i
-                            class="fas fa-heart-broken text-white text-4xl"
+                            class="fas fa-gift text-white text-3xl animate-bounce"
                           ></i>
                         </div>
                       </div>
-
                       <div
-                        class="text-white font-bold text-2xl mb-3 drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]"
+                        class="text-white font-bold text-xl mb-2 drop-shadow-lg"
                       >
-                        {{ drawResult.win ? "恭喜获得NFT!" : "很遗憾未中奖" }}
+                        神秘盲盒
                       </div>
+                      <div class="text-white/80 text-sm">点击开启神秘礼物</div>
+                    </div>
 
+                    <!-- 装饰粒子效果 -->
+                    <div class="absolute inset-0 pointer-events-none">
                       <div
-                        v-if="drawResult.win && drawResult.prize"
-                        class="bg-white/20 backdrop-blur-sm rounded-lg p-3 shadow-xl border border-white/10"
-                      >
-                        <div class="font-bold text-white text-lg">
-                          {{ drawResult.prize.name }}
-                        </div>
-                        <div class="text-white/80 text-sm">
-                          {{ drawResult.prize.level }}
-                        </div>
-                      </div>
-                      <div v-else class="text-white opacity-80 text-sm">
-                        再接再厉，下次好运
-                      </div>
+                        v-for="i in 12"
+                        :key="`decoration-particle-${i}`"
+                        class="decoration-particle absolute w-1 h-1 rounded-full bg-white/60"
+                        :style="{
+                          top: `${Math.random() * 100}%`,
+                          left: `${Math.random() * 100}%`,
+                          animationDelay: `${Math.random() * 3}s`,
+                          animationDuration: `${Math.random() * 2 + 1}s`,
+                        }"
+                      ></div>
+                    </div>
+                  </div>
 
-                      <!-- 粒子效果 -->
-                      <div v-if="drawResult.win" class="particles">
+                  <!-- 阶段2: 开启动效 - 星爆能量效果 -->
+                  <div
+                    v-if="blindboxStage === 'opening'"
+                    class="absolute inset-0 backface-hidden rounded-lg shadow-2xl flex items-center justify-center border border-indigo-500/30 overflow-hidden animate-box-opening"
+                  >
+                    <!-- 星爆能量背景图片 - 多层旋转效果 -->
+                    <div class="absolute inset-0 overflow-hidden">
+                      <!-- 外层旋转 -->
+                      <img
+                        src="/blindbox3.png"
+                        alt="星爆能量"
+                        class="absolute inset-0 w-full h-full object-cover animate-spin-reverse brightness-200"
+                        style="transform: scale(1.2)"
+                      />
+                      <!-- 中层旋转 -->
+                      <img
+                        src="/blindbox3.png"
+                        alt="星爆能量"
+                        class="absolute inset-0 w-full h-full object-cover animate-spin-slow brightness-175"
+                        style="transform: scale(1.1); opacity: 0.9"
+                      />
+                      <!-- 内层旋转 -->
+                      <img
+                        src="/blindbox3.png"
+                        alt="星爆能量"
+                        class="absolute inset-0 w-full h-full object-cover animate-spin-fast brightness-150"
+                        style="transform: scale(1); opacity: 0.8"
+                      />
+                    </div>
+
+                    <!-- 移除遮罩层，让图片更亮 -->
+
+                    <!-- 中心能量核心 - 放大缩小效果 -->
+                    <div class="relative z-10 flex items-center justify-center">
+                      <!-- 外层光环 -->
+                      <div
+                        class="absolute w-32 h-32 border-2 border-yellow-400/40 rounded-full animate-spin-reverse"
+                      ></div>
+
+                      <!-- 中层光环 -->
+                      <div
+                        class="absolute w-28 h-28 border border-orange-400/50 rounded-full animate-spin-slow"
+                      ></div>
+
+                      <!-- 内层核心 -->
+                      <div
+                        class="w-24 h-24 mx-auto bg-black/60 rounded-full flex items-center justify-center animate-pulse-scale"
+                      >
                         <div
-                          v-for="i in 20"
-                          :key="`win-particle-${i}`"
-                          class="win-particle absolute w-2 h-2 rounded-full"
-                          :style="{
-                            top: `${Math.random() * 100}%`,
-                            left: `${Math.random() * 100}%`,
-                            backgroundColor: [
-                              '#FCD34D',
-                              '#F97316',
-                              '#EC4899',
-                              '#8B5CF6',
-                            ][Math.floor(Math.random() * 4)],
-                            opacity: Math.random() * 0.7 + 0.3,
-                            animationDelay: `${Math.random() * 2}s`,
-                            animationDuration: `${Math.random() * 3 + 2}s`,
-                          }"
+                          class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full animate-spin-slow brightness-110"
                         ></div>
                       </div>
+                    </div>
+
+                    <!-- 能量粒子效果 - 增强版 -->
+                    <div class="absolute inset-0 pointer-events-none">
+                      <div
+                        v-for="i in 25"
+                        :key="`energy-particle-${i}`"
+                        class="energy-particle absolute w-2 h-2 rounded-full"
+                        :style="{
+                          top: `${Math.random() * 100}%`,
+                          left: `${Math.random() * 100}%`,
+                          backgroundColor: [
+                            '#FCD34D',
+                            '#F97316',
+                            '#EC4899',
+                            '#8B5CF6',
+                          ][Math.floor(Math.random() * 4)],
+                          animationDelay: `${Math.random() * 2}s`,
+                          animationDuration: `${Math.random() * 2 + 1}s`,
+                        }"
+                      ></div>
+                    </div>
+
+                    <!-- 旋转光环效果 -->
+                    <div class="absolute inset-0 pointer-events-none">
+                      <div
+                        class="absolute inset-4 border-2 border-yellow-400/50 rounded-full animate-spin-slow"
+                      ></div>
+                      <div
+                        class="absolute inset-8 border border-orange-400/40 rounded-full animate-spin-reverse"
+                      ></div>
+                      <div
+                        class="absolute inset-12 border border-red-400/30 rounded-full animate-spin-slow"
+                      ></div>
+                    </div>
+                  </div>
+
+                  <!-- 阶段3: 开盒结果 - 打开的盲盒 -->
+                  <div
+                    v-if="blindboxStage === 'opened'"
+                    class="absolute inset-0 backface-hidden rounded-lg shadow-2xl flex items-center justify-center border border-yellow-300/30 overflow-hidden"
+                  >
+                    <!-- 打开的盲盒背景图片 -->
+                    <img
+                      src="/blindbox2.png"
+                      alt="打开的盲盒"
+                      class="absolute inset-0 w-full h-full object-cover transition-all duration-1000 brightness-125"
+                      :class="{
+                        'scale-105': true,
+                      }"
+                    />
+
+                    <!-- 移除结果光效遮罩 -->
+
+                    <!-- 结果内容 - 只显示简单的状态图标 -->
+                    <!-- 庆祝粒子效果 - 只在背景层 -->
+                    <div
+                      v-if="drawResult && drawResult.win"
+                      class="absolute inset-0 pointer-events-none"
+                    >
+                      <div
+                        v-for="i in 30"
+                        :key="`celebration-particle-${i}`"
+                        class="celebration-particle absolute w-3 h-3 rounded-full"
+                        :style="{
+                          top: `${Math.random() * 100}%`,
+                          left: `${Math.random() * 100}%`,
+                          backgroundColor: [
+                            '#FCD34D',
+                            '#F97316',
+                            '#EC4899',
+                            '#8B5CF6',
+                            '#06B6D4',
+                            '#10B981',
+                          ][Math.floor(Math.random() * 6)],
+                          opacity: Math.random() * 0.8 + 0.2,
+                          animationDelay: `${Math.random() * 2}s`,
+                          animationDuration: `${Math.random() * 3 + 2}s`,
+                        }"
+                      ></div>
                     </div>
                   </div>
                 </div>
@@ -763,30 +865,66 @@
             </div>
 
             <!-- 抽奖信息 -->
-            <div class="text-center mt-8 space-y-2">
-              <div
-                v-if="isLoggedIn()"
-                class="bg-white/5 backdrop-blur-sm p-3 rounded-lg inline-block"
-              >
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="flex flex-col items-center">
-                    <div class="text-xs text-indigo-300 mb-1">今日剩余次数</div>
-                    <div class="text-xl font-bold text-white">
-                      {{ drawInfo.remainingDrawsToday || 0 }}
+            <div class="mt-8 space-y-2">
+              <div v-if="isLoggedIn()" class="relative inline-block mx-auto">
+                <!-- 次数显示框 -->
+                <div class="bg-white/5 backdrop-blur-sm p-3 rounded-lg">
+                  <div class="grid grid-cols-3 gap-4">
+                    <div class="flex flex-col items-center">
+                      <div class="text-xs text-indigo-300 mb-1">
+                        今日剩余次数
+                      </div>
+                      <div class="text-xl font-bold text-white">
+                        {{ drawInfo.remainingDrawsToday || 0 }}
+                      </div>
                     </div>
-                  </div>
-                  <div class="flex flex-col items-center">
-                    <div class="text-xs text-indigo-300 mb-1">总剩余次数</div>
-                    <div class="text-xl font-bold text-white">
-                      {{ drawInfo.remainingDraws || 0 }}
+                    <div class="flex flex-col items-center">
+                      <div class="text-xs text-indigo-300 mb-1">总剩余次数</div>
+                      <div class="text-xl font-bold text-white">
+                        {{ drawInfo.remainingDraws || 0 }}
+                      </div>
+                    </div>
+                    <div class="flex flex-col items-center">
+                      <div class="text-xs text-indigo-300 mb-1">
+                        助力抽奖次数
+                      </div>
+                      <div class="text-xl font-bold text-green-400">
+                        {{ helpDraws || 0 }}
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                <!-- 刷新按钮 -->
+                <button
+                  @click="refreshDrawCounts"
+                  :disabled="refreshing"
+                  class="absolute -right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-indigo-600 hover:bg-indigo-700 rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg z-10"
+                  title="刷新次数"
+                  style="margin-top: 8px; margin-right: -35px"
+                >
+                  <svg
+                    :class="[
+                      'w-4 h-4 text-white',
+                      { 'animate-spin': refreshing },
+                    ]"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                </button>
               </div>
 
               <div v-else>
                 <button
-                  @click="openLoginModal"
+                  @click="() => openLoginReminder()"
                   class="px-5 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all flex mx-auto items-center shadow-lg shadow-indigo-900/30"
                 >
                   <svg
@@ -802,6 +940,138 @@
                   </svg>
                   连接Web3钱包
                 </button>
+              </div>
+
+              <!-- 邀请好友助力按钮 -->
+              <div v-if="helpConfig?.helpEnabled" class="mt-4">
+                <button
+                  @click="openHelpModal"
+                  class="px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all font-medium flex items-center mx-auto"
+                >
+                  <svg
+                    class="w-5 h-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
+                  </svg>
+                  邀请好友助力
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 活动名称显示 -->
+      <div v-if="lottery?.activityName" class="mb-8 text-center">
+        <div
+          @click="navigateToActivityDetail(lottery.activityId)"
+          class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 backdrop-blur-sm rounded-full border border-indigo-400/30 hover:from-indigo-500/30 hover:to-purple-500/30 transition-all cursor-pointer group"
+        >
+          <div class="flex items-center space-x-3">
+            <div
+              class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                />
+              </svg>
+            </div>
+            <div class="text-left">
+              <div
+                class="text-lg font-semibold text-white group-hover:text-indigo-200 transition-colors"
+              >
+                {{ lottery.activityName }}
+              </div>
+            </div>
+            <div
+              class="w-5 h-5 text-indigo-300 group-hover:text-indigo-200 transition-colors"
+            >
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 活动详情 -->
+      <div class="relative mb-10 overflow-hidden rounded-xl">
+        <!-- 背景图层（模糊） -->
+        <div
+          class="absolute inset-0"
+          :style="{
+            backgroundImage: `url(${getSafeImageUrl(lottery?.background)})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(6px)',
+            transform: 'scale(1.1)',
+            zIndex: 0,
+          }"
+        ></div>
+
+        <!-- 半透明遮罩层（让内容更清晰） -->
+        <div class="absolute inset-0 bg-black/40 z-[1]"></div>
+
+        <!-- Glassmorphism 内容容器 -->
+        <div
+          class="relative z-[2] p-6 md:p-8 flex flex-col md:flex-row items-center backdrop-blur-md bg-white/10 border border-white/20 rounded-xl shadow-lg ring-1 ring-white/10 transition-all"
+        >
+          <img
+            :src="getSafeImageUrl(lottery?.icon)"
+            alt="活动图标"
+            class="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover shadow-xl mb-4 md:mb-0 md:mr-6"
+          />
+
+          <div class="flex-1 text-center md:text-left text-white">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">
+              {{ lottery.name }}
+            </h1>
+            <div
+              class="mb-2 flex flex-wrap justify-center md:justify-start gap-2"
+            >
+              <span class="text-xs px-3 py-1 rounded-full bg-indigo-600">
+                {{ lottery.lotteryType === "wheel" ? "大转盘" : "盲盒" }}
+              </span>
+              <span class="text-xs px-3 py-1 rounded-full bg-purple-600">
+                主办方: {{ lottery.sponsor }}
+              </span>
+            </div>
+            <p class="opacity-80 mb-4">{{ lottery.description }}</p>
+            <div class="opacity-60 text-sm">
+              <div>
+                活动时间: {{ formatDate(lottery.startTime) }} 至
+                {{ formatDate(lottery.endTime) }}
+              </div>
+              <div v-if="lottery.rule">
+                <span
+                  >每人总共 {{ lottery.rule.drawLimit }} 次机会，每天限
+                  {{ lottery.rule.dailyLimit }} 次</span
+                >
+                <span v-if="lottery.rule.additionalInfo">
+                  · {{ lottery.rule.additionalInfo }}</span
+                >
               </div>
             </div>
           </div>
@@ -832,7 +1102,7 @@
             </div>
 
             <h3 class="text-2xl font-bold text-white mb-3">
-              {{ drawResult.win ? "恭喜中奖!获得NFT!" : "未中奖" }}
+              {{ drawResult.win ? "恭喜中奖!" : "未中奖" }}
             </h3>
 
             <div
@@ -852,15 +1122,22 @@
 
             <div class="text-sm text-white opacity-80 mb-4">
               <div>
-                今日剩余抽奖次数: {{ drawInfo.remainingDrawsToday || 0 }}
+                今日剩余抽奖次数:
+                {{ drawInfo.remainingDrawsToday || 0 }}
               </div>
-              <div>总共剩余抽奖次数: {{ drawInfo.remainingDraws || 0 }}</div>
+              <div>
+                总共剩余抽奖次数:
+                {{ drawInfo.remainingDraws || 0 }}
+              </div>
+              <div class="text-green-300">
+                助力抽奖次数: {{ helpDraws || 0 }}
+              </div>
             </div>
 
             <div class="flex justify-center space-x-3">
               <button
                 v-if="canDraw"
-                @click="closeResultModal"
+                @click="handleContinueDraw"
                 class="px-5 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all"
               >
                 继续抽奖
@@ -884,14 +1161,125 @@
         </div>
       </div>
 
-      <!-- 好友助力模块 -->
-      <HelpInvite
-        v-if="lottery"
-        :lottery-id="lottery.id"
-        :activity-id="lottery.id"
-        :auto-create="true"
-        @invite-created="handleInviteCreated"
-      />
+      <!-- 好友助力弹窗 -->
+      <div
+        v-if="showHelpModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        @click="closeHelpModal"
+      >
+        <div
+          class="bg-gradient-to-br from-[#1e293b] to-[#334155] rounded-2xl p-6 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto border border-indigo-500/20"
+          @click.stop
+        >
+          <!-- 弹窗头部 -->
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-white">好友助力</h3>
+            <button
+              @click="closeHelpModal"
+              class="text-indigo-300 hover:text-white transition-colors"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <!-- 助力面板内容 -->
+          <HelpInvite
+            v-if="lottery"
+            :lottery-id="lottery.id"
+            :activity-id="lottery.activityId"
+            :auto-create="true"
+            @invite-created="onInviteCreated"
+          />
+        </div>
+      </div>
+
+      <!-- 剩余次数为0的提示弹窗 -->
+      <div
+        v-if="showNoDrawsModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        @click="closeNoDrawsModal"
+      >
+        <div
+          class="bg-gradient-to-br from-[#1e293b] to-[#334155] rounded-2xl p-6 max-w-md w-full mx-4 border border-indigo-500/20"
+          @click.stop
+        >
+          <!-- 弹窗头部 -->
+          <div class="text-center mb-6">
+            <div
+              class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center"
+            >
+              <svg
+                class="w-8 h-8 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">抽奖次数不足</h3>
+            <p class="text-indigo-300 text-sm">
+              您今日剩余抽奖次数为
+              {{ drawInfo.remainingDrawsToday || 0 }}，总剩余次数为
+              {{ drawInfo.remainingDraws || 0 }}，助力抽奖次数为
+              {{ helpDraws || 0 }}
+            </p>
+          </div>
+
+          <!-- 弹窗内容 -->
+          <div class="space-y-4">
+            <!-- 助力按钮 -->
+            <div v-if="helpConfig?.helpEnabled" class="text-center">
+              <button
+                @click="openHelpModalFromNoDraws"
+                class="w-full px-6 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-lg hover:from-green-700 hover:to-blue-700 transition-all font-medium flex items-center justify-center"
+              >
+                <svg
+                  class="w-5 h-5 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                邀请好友助力
+              </button>
+            </div>
+
+            <!-- 关闭按钮 -->
+            <div class="text-center">
+              <button
+                @click="closeNoDrawsModal"
+                class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all"
+              >
+                知道了
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- 奖品列表 -->
       <div
@@ -922,13 +1310,29 @@
           >
             <!-- 奖品图片 -->
             <div class="relative h-36 overflow-hidden">
+              <!-- 谢谢参与奖项显示特殊占位符 -->
+              <div
+                v-if="prize.name === '谢谢参与'"
+                class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-600 to-gray-800"
+              >
+                <div class="text-center text-white">
+                  <svg
+                    class="w-12 h-12 mx-auto mb-2 opacity-60"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M9 12l2 2 4-4" />
+                    <circle cx="12" cy="12" r="10" />
+                  </svg>
+                  <p class="text-sm opacity-80">谢谢参与</p>
+                </div>
+              </div>
+              <!-- 其他奖项显示图片 -->
               <img
-                :src="
-                  prize.image ||
-                  `https://source.unsplash.com/random/300x200/?${encodeURIComponent(
-                    prize.name
-                  )},nft&${prize.id}`
-                "
+                v-else
+                :src="getSafeImageUrl(prize.image)"
                 alt="奖品图片"
                 class="w-full h-full object-cover"
               />
@@ -1043,56 +1447,111 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 分享弹窗 -->
-  <ShareModal
-    :visible="showShareModal"
-    :share-url="shareUrl"
-    :share-title="shareTitle"
-    :share-text="shareText"
-    :user-info="userInfo"
-    @close="closeShareModal"
-  />
+    <!-- 分享弹窗 -->
+    <ShareModal
+      :visible="showShareModal"
+      :share-url="shareUrl"
+      :share-title="shareTitle"
+      :share-text="shareText"
+      :share-image="shareImage"
+      :user-info="shareUserInfo"
+      @close="closeShareModal"
+    />
+
+    <!-- 悬浮进群按钮 -->
+    <div
+      class="fixed right-0 top-3/4 transform -translate-y-1/2 z-40"
+      v-if="!loading && lottery"
+    >
+      <button
+        @click="enterChatroom"
+        class="group relative flex flex-col items-center justify-center bg-gradient-to-b from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-white/20 backdrop-blur-sm"
+        style="width: 80px; height: 80px; border-radius: 40px 0 0 40px"
+      >
+        <div
+          class="flex flex-col items-center justify-center h-full px-2 py-1"
+          style="font-family: system-ui, Avenir, Helvetica, Arial, sans-serif"
+        >
+          <div class="flex items-center space-x-1 mb-0.5">
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+            <span class="text-sm font-medium" style="font-family: inherit"
+              >进群</span
+            >
+          </div>
+          <div class="text-sm font-medium" style="font-family: inherit">
+            享福利
+          </div>
+        </div>
+      </button>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch, computed, inject } from "vue";
+import {
+  ref,
+  reactive,
+  onMounted,
+  onUnmounted,
+  watch,
+  computed,
+  inject,
+} from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   clearTempToken,
   getLotteryDetail,
   participateLottery,
+  getHelpStats,
+  getHelpConfig,
+  getThirdPartyUserInfo,
+  assistLottery,
+  getActivityChatroomId,
+  joinChatroom,
 } from "../../api/lottery";
-import ShareModal from "../../components/ShareModal.vue";
+import {
+  getUserInfoFromCache,
+  getQueryParams,
+  saveUserInfo,
+  clearUserInfo,
+} from "../../utils/auth";
+import { getUserInfo } from "../../api/user";
+import { getAppTopOffsetClass } from "../../utils/app";
 import HelpInvite from "../../components/HelpInvite.vue";
-import { getUserInfoFromCache } from "../../utils/auth";
+import ShareModal from "../../components/ShareModal.vue";
+import message from "../../utils/message";
 
 const route = useRoute();
 const router = useRouter();
-const openLoginModal = inject("openLoginModal") as () => void;
+const openLoginReminder = inject("openLoginReminder") as (
+  message?: string,
+  helpMode?: boolean
+) => void;
 const isLoggedIn = inject("isLoggedIn") as () => boolean;
 
 const lottery = ref<any>(null);
-
-const userInfo = computed(() => {
-  const user = getUserInfoFromCache();
-  if (user && user.uuid && user.token && user.uid) {
-    return {
-      uuid: user.uuid,
-      token: user.token,
-      uid: user.uid,
-    };
-  }
-  return undefined;
-});
 const loading = ref(true);
 const error = ref("");
 const isDrawing = ref(false);
+const refreshing = ref(false);
 const wheelRef = ref<HTMLElement | null>(null);
 const boxRef = ref<HTMLElement | null>(null);
 const wheelRotation = ref(0);
 const boxOpened = ref(false);
+const blindboxStage = ref<"initial" | "opening" | "opened">("initial");
 const showResultModal = ref(false);
 const drawResult = ref<any>({
   win: false,
@@ -1107,36 +1566,47 @@ const drawInfo = reactive({
   remainingDrawsToday: 0,
 });
 
-// 分享和助力相关状态
+// 助力抽奖次数
+const helpDraws = ref(0);
+// 获得助力次数（总助力次数）
+const totalHelpDraws = ref(0);
+
+// 助力配置
+const helpConfig = ref<any>(null);
+
+// 助力弹窗显示状态
+const showHelpModal = ref(false);
+
+// 剩余次数为0的提示弹窗状态
+const showNoDrawsModal = ref(false);
+
+// 分享弹窗状态
 const showShareModal = ref(false);
-const shareUrl = ref("");
-const shareTitle = ref("");
-const shareText = ref("");
 
-// 助力相关函数
-function handleInviteCreated(inviteData: any) {
-  console.log("助力邀请已创建:", inviteData);
-}
+// 聊天室ID缓存
+const cachedRoomId = ref<string | null>(null);
 
-function openShareModal() {
-  if (!lottery.value) return;
+// 获取用户信息用于短链生成
+const shareUserInfo = computed(() => {
+  const userInfo = getUserInfoFromCache();
+  if (userInfo && userInfo.uuid && userInfo.token && userInfo.uid) {
+    return {
+      uuid: userInfo.uuid,
+      token: userInfo.token,
+      uid: userInfo.uid,
+    };
+  }
+  return undefined;
+});
 
-  shareTitle.value = lottery.value.name || "精彩抽奖活动";
-  shareText.value = `${lottery.value.name} - 快来参与抽奖赢取精美数字藏品！`;
-  shareUrl.value = window.location.href;
-  showShareModal.value = true;
-}
-
-function closeShareModal() {
-  showShareModal.value = false;
-}
+// App模式下的顶部偏移
+const appTopOffsetClass = computed(() => getAppTopOffsetClass());
 
 // 计算当前是否可以抽奖
 const canDraw = computed(() => {
   return (
     isLoggedIn() &&
-    drawInfo.remainingDraws > 0 &&
-    drawInfo.remainingDrawsToday > 0
+    (drawInfo.remainingDraws > 0 || drawInfo.remainingDrawsToday > 0)
   );
 });
 
@@ -1151,20 +1621,443 @@ const sectorAngle = computed(() => {
   return 360 / lottery.value.prizes.length;
 });
 
-// 随机背景和图标（用于API没有返回图片时）
-function randomBackground(id: number) {
-  const themes = [
-    "space,galaxy,nebula",
-    "cosmic,stars,universe",
-    "planet,astronomy,cosmos",
-    "aurora,night,stellar",
-  ];
-  const theme = themes[id % themes.length];
-  return `https://source.unsplash.com/featured/?${theme}&${id}`;
+// 计算分享相关数据
+const shareUrl = computed(() => {
+  if (!lottery.value?.id) {
+    console.warn("Lottery ID is undefined, using fallback URL");
+    return window.location.origin + "/h5/lottery/";
+  }
+
+  // 使用新的分享链接格式：VITE_Aisky_URL + pages/lottery/index?page=h5/lottery/{lotteryId}
+  const aiskyUrl = import.meta.env.VITE_Aisky_URL;
+  if (aiskyUrl) {
+    const finalUrl = `${aiskyUrl}pages/lottery/index?page=h5/lottery/${lottery.value.id}`;
+    console.log("Generated share URL:", finalUrl);
+    return finalUrl;
+  }
+
+  // 如果 VITE_Aisky_URL 不存在，使用原来的逻辑作为后备
+  const currentUrl = new URL(window.location.href);
+  const basePath = currentUrl.pathname;
+
+  // 确保路径格式正确
+  let sharePath = basePath;
+  if (!sharePath.includes("/h5/lottery/")) {
+    sharePath = `/h5/lottery/${lottery.value.id}`;
+  }
+
+  const finalUrl = `${window.location.origin}${sharePath}`;
+  console.log("Generated fallback share URL:", finalUrl);
+  return finalUrl;
+});
+
+const shareTitle = computed(() => {
+  return lottery.value?.name || "精彩抽奖活动";
+});
+
+const shareText = computed(() => {
+  return (
+    lottery.value?.description || "快来参与这个精彩的抽奖活动，赢取丰厚奖品！"
+  );
+});
+
+const shareImage = computed(() => {
+  return lottery.value?.icon || lottery.value?.background;
+});
+
+// 返回按钮的逻辑
+const backButtonConfig = computed(() => {
+  const direct = route.query.direct as string;
+  if (direct === "1") {
+    return {
+      to: "/lottery",
+      text: "返回抽奖列表",
+    };
+  } else {
+    return {
+      to: "/",
+      text: "返回星际港",
+    };
+  }
+});
+
+// 处理返回按钮点击
+function handleBackClick() {
+  const direct = route.query.direct as string;
+  if (direct === "1") {
+    router.push("/lottery");
+  } else {
+    router.back();
+  }
 }
 
-function randomIcon(id: number) {
-  return `https://source.unsplash.com/random/100x100/?logo,emblem&${id}`;
+// 检查是否在uniapp环境
+function isInUniApp(): Promise<boolean> {
+  return Promise.resolve(true);
+  /*return new Promise((resolve) => {
+    if (typeof (window as any).uni !== "undefined") {
+      // 使用uni.getEnv()进行准确的环境检测
+      (window as any).uni.getEnv(function (res: any) {
+        console.log("当前环境：" + JSON.stringify(res));
+        // 如果返回了环境信息，说明在uniapp环境中
+        resolve(res && (res.uvue || res.nvue || res.plus));
+      });
+    } else {
+      // uni对象不存在，检查其他标识
+      const isUniApp =
+        typeof (window as any).plus !== "undefined" ||
+        /uni-app/i.test(navigator.userAgent);
+      resolve(isUniApp);
+    }
+  });*/
+}
+
+// 等待UniAppJSBridgeReady事件的Promise
+function waitForUniAppJSBridge(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof (window as any).uni !== "undefined") {
+      // uni对象已存在，直接resolve
+      resolve();
+    } else {
+      // 等待UniAppJSBridgeReady事件
+      const handleReady = () => {
+        console.log("UniAppJSBridgeReady 事件触发，uni对象已可用");
+        document.removeEventListener("UniAppJSBridgeReady", handleReady);
+        resolve();
+      };
+      document.addEventListener("UniAppJSBridgeReady", handleReady);
+
+      // 设置超时，避免无限等待
+      setTimeout(() => {
+        console.warn("等待UniAppJSBridgeReady超时，尝试直接调用");
+        document.removeEventListener("UniAppJSBridgeReady", handleReady);
+        resolve();
+      }, 5000);
+    }
+  });
+}
+
+// 跳转到Aisky活动详情页
+async function navigateToActivityDetail(activityId: string) {
+  uni.navigateTo({
+    url: "/pages/activity/details/index?activityId=" + activityId,
+  });
+}
+
+// 检查URL参数并获取用户信息
+async function checkUrlParamsAndGetUserInfo() {
+  const queryParams = getQueryParams();
+  const { uid, uuid, token } = queryParams;
+
+  // 如果URL中包含这三个参数，则清除现有缓存并执行自动登录
+  if (uid && uuid && token) {
+    try {
+      console.log("检测到URL参数，清除现有缓存并执行自动登录...", {
+        uid,
+        uuid,
+        token,
+      });
+
+      // 清除现有缓存
+      clearUserInfo();
+      console.log("已清除现有用户缓存");
+
+      // 调用接口获取用户信息
+      const response = await getUserInfo({ uid, uuid, token });
+
+      if (
+        response.data &&
+        response.data.status === 200 &&
+        response.data.attachment
+      ) {
+        const userData = response.data.attachment;
+        console.log("获取用户信息成功:", userData);
+
+        // 保存用户信息到本地缓存
+        saveUserInfo({
+          uuid: userData.uuid,
+          token: token,
+          uid: userData.uid,
+          openName: userData.openName || "用户",
+        });
+
+        console.log("用户信息已保存到本地缓存");
+      } else {
+        console.error("获取用户信息失败:", response.data);
+      }
+    } catch (error) {
+      console.error("调用用户信息接口失败:", error);
+    }
+  }
+}
+
+// 处理help参数和helpcode参数
+async function handleHelpParam() {
+  const helpParam = route.query.help as string;
+  const helpcode = route.query.helpcode as string;
+
+  // 处理helpcode参数 - 执行助力操作
+  if (helpcode) {
+    console.log("检测到helpcode参数:", helpcode);
+    await performHelpAssist(helpcode);
+
+    // 清除URL中的helpcode参数
+    const newQuery = { ...route.query };
+    delete newQuery.helpcode;
+    router.replace({ query: newQuery });
+    return;
+  }
+
+  // 处理help参数 - 显示提示信息
+  if (helpParam) {
+    console.log("检测到help参数:", helpParam);
+
+    if (helpParam === "ok") {
+      message.success("助力成功！");
+    } else {
+      message.info(helpParam);
+    }
+
+    // 清除URL中的help参数，避免刷新页面时重复显示
+    const newQuery = { ...route.query };
+    delete newQuery.help;
+    router.replace({ query: newQuery });
+  }
+}
+
+// 执行助力操作
+async function performHelpAssist(helpcode: string) {
+  try {
+    console.log("开始执行助力操作，helpcode:", helpcode);
+
+    // 获取当前用户信息
+    const userInfo = getUserInfoFromCache();
+    if (!userInfo?.uid) {
+      console.log("用户未登录，弹出登录提醒");
+      openLoginReminder("您还没有登录，请登录后再助力好友", true);
+      return;
+    }
+
+    // 调用助力API
+    const response = await assistLottery(helpcode, userInfo.uid);
+
+    console.log("助力API响应:", response);
+
+    if (response.data?.code === 0) {
+      // 助力成功
+      message.success("助力成功！");
+
+      // 刷新助力统计信息
+      if (lottery.value?.id) {
+        try {
+          const helpStatsRes = await getHelpStats(
+            lottery.value.id,
+            userInfo.uid
+          );
+          if (helpStatsRes.data?.code === 0) {
+            helpDraws.value = helpStatsRes.data.data?.remainingHelpDraws || 0;
+            totalHelpDraws.value = helpStatsRes.data.data?.totalHelpDraws || 0;
+            console.log("助力统计已刷新:", helpDraws.value);
+            console.log("获得助力次数已刷新:", totalHelpDraws.value);
+          }
+        } catch (error) {
+          console.error("刷新助力统计失败:", error);
+        }
+      }
+    } else {
+      // 助力失败
+      const errorMsg = response.data?.msg || "助力失败，请重试";
+      message.info(errorMsg);
+    }
+  } catch (error) {
+    console.error("助力操作失败:", error);
+    message.info("网络错误，请稍后再试");
+  }
+}
+
+// 校验用户信息（异步操作）
+async function validateUserInfo() {
+  const userInfo = getUserInfoFromCache();
+
+  // 如果用户已登录，则进行数据校验
+  if (userInfo && userInfo.uuid && userInfo.token && userInfo.uid) {
+    try {
+      console.log("开始校验用户信息...", {
+        uuid: userInfo.uuid,
+        uid: userInfo.uid,
+      });
+
+      const response = await getThirdPartyUserInfo(
+        userInfo.uuid,
+        userInfo.token,
+        userInfo.uid
+      );
+
+      if (response.data && response.data.status === 200) {
+        console.log("用户信息校验成功:", response.data.attachment);
+
+        // 校验成功，更新缓存中的用户信息
+        const userData = response.data.attachment;
+        saveUserInfo({
+          uuid: userData.uuid,
+          token: userInfo.token, // 保持原有token
+          uid: userData.uid,
+          openName: userData.openName || userInfo.openName,
+        });
+
+        return true;
+      } else {
+        console.warn("用户信息校验失败:", response.data);
+        return false;
+      }
+    } catch (error: any) {
+      console.error("用户信息校验异常:", error);
+
+      // 检查是否是Token相关错误
+      if (
+        error.response?.data?.status === 9999 ||
+        error.response?.data?.message?.includes("token") ||
+        error.response?.data?.message?.includes("Token")
+      ) {
+        console.log("检测到Token错误，需要重新登录");
+        return false;
+      }
+
+      // 其他错误也返回false，触发重新登录
+      return false;
+    }
+  }
+
+  return true; // 未登录用户不需要校验
+}
+
+// 检查URL是否有效
+function isValidUrl(url: string): boolean {
+  if (!url) return false;
+
+  try {
+    const urlObj = new URL(url);
+    // 检查协议是否为http或https
+    return urlObj.protocol === "http:" || urlObj.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+// 获取安全的图片URL
+function getSafeImageUrl(url: string | null | undefined): string {
+  if (!url || !isValidUrl(url)) {
+    return "https://img.aisky.io/api/aQAdzWGNitaaleNn.png";
+  }
+  return url;
+}
+
+// 获取聊天室roomId（带缓存）
+async function getChatroomId(): Promise<string> {
+  try {
+    // 如果已有缓存，直接返回
+    if (cachedRoomId.value) {
+      return cachedRoomId.value;
+    }
+
+    let roomId: string;
+
+    // 如果抽奖详情绑定了活动，即activityId不为空
+    if (lottery.value?.activityId) {
+      const userInfo = getUserInfoFromCache();
+      if (!userInfo || !userInfo.uid || !userInfo.uuid || !userInfo.token) {
+        throw new Error("用户信息不完整，无法获取聊天室ID");
+      }
+
+      // 调用第三方接口获取chatroomId
+      const res = await getActivityChatroomId(
+        userInfo.uuid,
+        userInfo.token,
+        userInfo.uid,
+        lottery.value.activityId
+      );
+
+      if (
+        res.data &&
+        res.data.status === 200 &&
+        res.data.attachment?.activity?.chatroomId
+      ) {
+        roomId = res.data.attachment.activity.chatroomId.toString();
+      } else {
+        // 如果第三方接口返回的chatroomId为空，则使用默认值
+        console.log("第三方接口返回的chatroomId为空，使用默认聊天室ID");
+        const defaultChatroomId = import.meta.env.VITE_Lottery_ChatRoomId;
+        if (!defaultChatroomId) {
+          throw new Error("未配置默认聊天室ID");
+        }
+        roomId = defaultChatroomId;
+      }
+    } else {
+      // 如果未绑定活动，则直接使用环境变量中的值
+      const defaultChatroomId = import.meta.env.VITE_Lottery_ChatRoomId;
+      if (!defaultChatroomId) {
+        throw new Error("未配置默认聊天室ID");
+      }
+      roomId = defaultChatroomId;
+    }
+
+    // 缓存roomId
+    cachedRoomId.value = roomId;
+    return roomId;
+  } catch (error) {
+    console.error("获取聊天室ID失败:", error);
+    throw error;
+  }
+}
+
+// 静默加入聊天室
+async function silentlyJoinChatroom() {
+  try {
+    const userInfo = getUserInfoFromCache();
+    if (!userInfo || !userInfo.uid || !userInfo.uuid || !userInfo.token) {
+      return; // 用户信息不完整，静默跳过
+    }
+
+    const roomId = await getChatroomId();
+
+    // 静默调用第三方接口，不处理成功/失败
+    joinChatroom(
+      userInfo.uuid,
+      userInfo.token,
+      userInfo.uid,
+      roomId,
+      userInfo.openName || "用户"
+    ).catch((error) => {
+      // 静默处理错误，不显示给用户
+      console.log("静默加入聊天室失败:", error);
+    });
+  } catch (error) {
+    // 静默处理错误，不显示给用户
+    console.log("获取聊天室ID失败，跳过加入聊天室:", error);
+  }
+}
+
+// 进入聊天室
+async function enterChatroom() {
+  try {
+    const roomId = await getChatroomId();
+
+    // 检查是否在uni-app环境中
+    if (
+      typeof (window as any).uni !== "undefined" &&
+      (window as any).uni.navigateTo
+    ) {
+      (window as any).uni.navigateTo({
+        url: `/pages/chatroom/chat/index?roomId=${roomId}&back=1`,
+      });
+    } else {
+      // 如果不在uni-app环境中，可以显示提示或跳转到其他页面
+      message.warning("当前环境不支持聊天室功能");
+    }
+  } catch (error) {
+    console.error("进入聊天室失败:", error);
+    message.error("进入聊天室失败，请稍后再试");
+  }
 }
 
 // 获取抽奖活动详情
@@ -1186,6 +2079,8 @@ async function fetchLotteryDetail() {
     const res = await getLotteryDetail(lotteryId, uid);
     if (res.data && res.data.code === 0) {
       lottery.value = res.data.data;
+      console.log("获取到的抽奖详情:", lottery.value);
+      console.log("activityId:", lottery.value?.activityId);
 
       // 检查是否存在"谢谢参与"奖项
       const hasThanksItem =
@@ -1227,6 +2122,33 @@ async function fetchLotteryDetail() {
         // 否则使用规则中的默认值
         drawInfo.remainingDrawsToday = lottery.value.rule.dailyLimit;
       }
+
+      // 获取助力配置
+      try {
+        const configRes = await getHelpConfig(lotteryId);
+        if (configRes.data?.code === 0) {
+          helpConfig.value = configRes.data.data;
+        }
+      } catch (error) {
+        console.error("获取助力配置失败:", error);
+      }
+
+      // 获取助力统计信息
+      if (isLoggedIn()) {
+        try {
+          const userInfo = getUserInfoFromCache();
+          if (userInfo?.uid) {
+            const helpStatsRes = await getHelpStats(lotteryId, userInfo.uid);
+            if (helpStatsRes.data?.code === 0) {
+              helpDraws.value = helpStatsRes.data.data?.remainingHelpDraws || 0;
+              totalHelpDraws.value =
+                helpStatsRes.data.data?.totalHelpDraws || 0;
+            }
+          }
+        } catch (error) {
+          console.error("获取助力统计失败:", error);
+        }
+      }
     } else {
       lottery.value = null;
       throw new Error(res.data?.msg || "获取抽奖活动详情失败");
@@ -1252,6 +2174,46 @@ async function fetchLotteryDetail() {
 function retryFetch() {
   clearTempToken(); // 清除可能失效的token
   fetchLotteryDetail();
+}
+
+// 刷新抽奖次数
+async function refreshDrawCounts() {
+  if (refreshing.value) return;
+
+  refreshing.value = true;
+  try {
+    console.log("开始刷新抽奖次数");
+
+    // 重新获取抽奖详情
+    await fetchLotteryDetail();
+
+    // 如果用户已登录，重新获取助力统计
+    if (isLoggedIn()) {
+      const userInfo = getUserInfoFromCache();
+      if (userInfo?.uid) {
+        try {
+          const helpStatsRes = await getHelpStats(
+            lottery.value.id,
+            userInfo.uid
+          );
+          if (helpStatsRes.data?.code === 0) {
+            helpDraws.value = helpStatsRes.data.data?.remainingHelpDraws || 0;
+            totalHelpDraws.value = helpStatsRes.data.data?.totalHelpDraws || 0;
+            console.log("助力抽奖次数已刷新:", helpDraws.value);
+            console.log("获得助力次数已刷新:", totalHelpDraws.value);
+          }
+        } catch (error) {
+          console.error("刷新助力统计失败:", error);
+        }
+      }
+    }
+
+    console.log("抽奖次数刷新完成");
+  } catch (error) {
+    console.error("刷新抽奖次数失败:", error);
+  } finally {
+    refreshing.value = false;
+  }
 }
 
 // 日期格式化
@@ -1356,23 +2318,51 @@ async function startDraw() {
 
   isDrawing.value = true;
 
+  // 立即更新前端显示（自动减一）
+  if (drawInfo.remainingDrawsToday > 0) {
+    drawInfo.remainingDrawsToday -= 1;
+    drawInfo.remainingDraws -= 1;
+  }
+
+  // 立即开始转盘动画（不等待API返回）
+  if (lottery.value.lotteryType === "wheel") {
+    // 先随机旋转，等API返回后再调整到正确位置
+    spinWheelRandom();
+  } else if (lottery.value.lotteryType === "box") {
+    openBox();
+  }
+
   try {
     const userInfo = getUserInfoFromCache();
-    if (!userInfo || !userInfo.uid) {
-      openLoginModal();
+    if (!userInfo || !userInfo.uid || !userInfo.uuid || !userInfo.token) {
+      console.error("用户信息不完整，无法参与抽奖");
+      openLoginReminder();
       isDrawing.value = false;
       return;
     }
 
     const lotteryId = Number(route.params.id);
-    const res = await participateLottery(lotteryId, userInfo.uid);
+    const res = await participateLottery(
+      lotteryId,
+      userInfo.uid,
+      userInfo.uuid,
+      userInfo.token
+    );
 
     if (res.data && res.data.code === 0) {
       const result = res.data.data;
 
-      // 更新剩余抽奖次数
+      // 使用后端返回的准确数据更新抽奖次数
       drawInfo.remainingDraws = result.remainingDraws;
       drawInfo.remainingDrawsToday = result.remainingDrawsToday;
+
+      // 更新助力抽奖次数
+      if (result.remainingHelpDraws !== undefined) {
+        helpDraws.value = result.remainingHelpDraws;
+      }
+
+      // 抽奖成功后，静默调用加入聊天室接口
+      silentlyJoinChatroom();
 
       // 存储抽奖结果
       drawResult.value = {
@@ -1381,9 +2371,10 @@ async function startDraw() {
         winnerId: result.winnerId,
         remainingDraws: result.remainingDraws,
         remainingDrawsToday: result.remainingDrawsToday,
+        helpDraws: result.helpDraws,
       };
 
-      // 根据抽奖形式展示不同动画
+      // 根据抽奖形式调整到正确结果位置
       if (lottery.value.lotteryType === "wheel") {
         // 如果未中奖，找到转盘上的"谢谢参与"奖项
         if (!result.win) {
@@ -1392,33 +2383,92 @@ async function startDraw() {
               p.name.includes("谢谢参与") || p.level.includes("未中奖")
           );
           if (thanksItem) {
-            spinWheel(thanksItem);
+            spinWheelToResult(thanksItem);
           } else {
             // 如果转盘上没有"谢谢参与"，随机指向一个位置
             const randomIndex = Math.floor(
               Math.random() * lottery.value.prizes.length
             );
-            spinWheel(lottery.value.prizes[randomIndex]);
+            spinWheelToResult(lottery.value.prizes[randomIndex]);
             console.warn('转盘上没有"谢谢参与"奖项，请在后台配置添加');
           }
         } else {
-          spinWheel(result.prize);
+          spinWheelToResult(result.prize);
         }
-      } else if (lottery.value.lotteryType === "box") {
-        openBox();
       }
     } else {
-      alert("抽奖失败，请稍后再试");
+      // 抽奖失败，回滚前端预更新的次数
+      rollbackDrawCounts();
+      message.error("抽奖失败，请稍后再试");
       isDrawing.value = false;
     }
   } catch (error) {
     console.error("参与抽奖失败:", error);
-    alert("网络错误，请稍后再试");
+    // 网络错误，回滚前端预更新的次数
+    rollbackDrawCounts();
+    message.error("网络错误，请稍后再试");
     isDrawing.value = false;
   }
 }
 
-// 旋转转盘
+// 回滚抽奖次数（当抽奖失败时使用）
+function rollbackDrawCounts() {
+  // 回滚逻辑：将减去的次数加回来
+  drawInfo.remainingDrawsToday += 1;
+  drawInfo.remainingDraws += 1;
+}
+
+// 随机旋转转盘（点击时立即开始）
+function spinWheelRandom() {
+  if (!wheelRef.value || !lottery.value?.prizes) return;
+
+  // 从当前位置继续旋转，增加随机角度
+  // 使用较大的随机角度，确保转盘有明显的旋转效果
+  const currentRotation = wheelRotation.value;
+  const additionalRotation = 3600 + Math.random() * 1800; // 10-15圈随机旋转
+  wheelRotation.value = currentRotation + additionalRotation;
+}
+
+// 旋转转盘到指定结果位置
+function spinWheelToResult(prize: any) {
+  if (!wheelRef.value || !lottery.value?.prizes) return;
+
+  // 确定要旋转到的位置
+  let targetIndex = 0;
+  if (prize) {
+    targetIndex = lottery.value.prizes.findIndex((p: any) => p.id === prize.id);
+    if (targetIndex === -1) targetIndex = 0;
+  }
+
+  // 计算目标角度
+  // 指针固定在12点钟方向，转盘需要反向旋转来让指针指向目标奖项
+  // 目标奖项的中心角度 = targetIndex * sectorAngle + sectorAngle/2
+  // 转盘需要旋转的角度 = 360 - 目标奖项的中心角度
+  const targetPrizeCenterAngle =
+    targetIndex * sectorAngle.value + sectorAngle.value / 2;
+  const finalTargetRotation = 360 - targetPrizeCenterAngle;
+
+  // 简化逻辑：直接计算最终目标角度
+  // 在随机旋转的基础上，继续旋转到最终位置
+  const currentRotation = wheelRotation.value;
+  const additionalRotation = finalTargetRotation - (currentRotation % 360);
+
+  // 确保 additionalRotation 为正数，避免反向转动
+  const normalizedAdditionalRotation =
+    additionalRotation < 0 ? additionalRotation + 360 : additionalRotation;
+  const targetRotation = currentRotation + normalizedAdditionalRotation;
+
+  // 设置旋转动画到正确位置
+  wheelRotation.value = targetRotation;
+
+  // 动画结束后显示结果（等待完整的5秒动画完成）
+  setTimeout(() => {
+    showResultModal.value = true;
+    isDrawing.value = false;
+  }, 5000); // 与CSS动画时长保持一致
+}
+
+// 旋转转盘（保留原函数用于兼容）
 function spinWheel(prize: any) {
   if (!wheelRef.value || !lottery.value?.prizes) return;
 
@@ -1429,13 +2479,6 @@ function spinWheel(prize: any) {
     if (targetIndex === -1) targetIndex = 0;
   }
 
-  // 添加转盘音效
-  const audio = new Audio();
-  audio.src =
-    "https://assets.mixkit.co/sfx/preview/mixkit-slot-machine-wheel-1932.mp3";
-  audio.volume = 0.5;
-  audio.play();
-
   // 计算目标角度（多转几圈再停在目标位置）
   const baseRotation = 3600; // 多转10圈
   const targetRotation = baseRotation + (360 - targetIndex * sectorAngle.value);
@@ -1445,58 +2488,58 @@ function spinWheel(prize: any) {
 
   // 动画结束后显示结果
   setTimeout(() => {
-    // 播放结果音效
-    const resultAudio = new Audio();
-    resultAudio.src = drawResult.value.win
-      ? "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"
-      : "https://assets.mixkit.co/sfx/preview/mixkit-losing-bleeps-2026.mp3";
-    resultAudio.volume = 0.6;
-    resultAudio.play();
-
     showResultModal.value = true;
     isDrawing.value = false;
-
-    // 不重置转盘角度，保持在中奖位置
   }, 5000); // 动画时长
 }
 
-// 打开盲盒
+// 打开盲盒 - 新的多阶段动画
 function openBox() {
   if (!boxRef.value) return;
 
-  // 添加打开盒子的音效
-  const audio = new Audio();
-  audio.src =
-    "https://assets.mixkit.co/sfx/preview/mixkit-magical-shine-chord-2846.mp3";
-  audio.volume = 0.5;
-  audio.play();
+  // 阶段1: 开启动效 - 星爆能量 (1.5秒)
+  blindboxStage.value = "opening";
 
-  boxOpened.value = true;
-
-  // 打开动画结束后显示结果
   setTimeout(() => {
-    // 播放结果音效
-    const resultAudio = new Audio();
-    resultAudio.src = drawResult.value.win
-      ? "https://assets.mixkit.co/sfx/preview/mixkit-game-treasure-coin-2038.mp3"
-      : "https://assets.mixkit.co/sfx/preview/mixkit-losing-bleeps-2026.mp3";
-    resultAudio.volume = 0.6;
-    resultAudio.play();
+    // 阶段2: 开盒结果 - 打开的盲盒 (2.5秒)
+    blindboxStage.value = "opened";
 
-    showResultModal.value = true;
-    isDrawing.value = false;
+    // 显示结果弹窗
+    setTimeout(() => {
+      showResultModal.value = true;
+      isDrawing.value = false;
+    }, 2500);
 
     // 重置盲盒状态（为下次抽奖做准备）
     setTimeout(() => {
-      boxOpened.value = false;
-    }, 500);
-  }, 1500); // 动画时长
+      blindboxStage.value = "initial";
+    }, 4000);
+  }, 1500);
+}
+
+// 处理继续抽奖按钮点击
+function handleContinueDraw() {
+  // 关闭结果弹窗
+  showResultModal.value = false;
+
+  // 检查今日剩余次数
+  if (drawInfo.remainingDrawsToday <= 0) {
+    console.log("今日剩余次数为0，打开助力邀请窗口");
+    // 如果助力功能开启，直接显示助力邀请窗口
+    if (helpConfig.value?.helpEnabled) {
+      showHelpModal.value = true;
+    } else {
+      message.info("今日抽奖次数已用完，请明天再来");
+    }
+  }
+  // 如果不为0，用户可以继续抽奖（不重置转盘状态）
 }
 
 // 关闭结果弹窗
 function closeResultModal() {
   showResultModal.value = false;
-  // 不需要触发转盘继续转动
+  // 不重置转盘状态，让转盘保持在当前位置
+  // 下次抽奖时会从当前位置继续旋转
 }
 
 // 跳转到"我的抽奖"页面
@@ -1508,14 +2551,102 @@ function goToMyLottery() {
 // 参与抽奖按钮点击事件
 function handleDrawClick() {
   console.log("点击抽奖按钮");
+  console.log("canDraw:", canDraw.value);
+  console.log("drawInfo:", drawInfo);
+  console.log("helpDraws:", helpDraws.value);
+
+  // 检查登录状态
   if (!isLoggedIn()) {
     // 未登录时，打开登录窗口
-    openLoginModal();
+    openLoginReminder();
     return;
   }
 
-  // 已登录，开始抽奖
+  // 检查是否完全没有抽奖次数（包括助力次数）
+  if (drawInfo.remainingDrawsToday <= 0) {
+    console.log("今日剩余次数为0且助力次数为0，显示助力邀请窗口");
+    // 如果助力功能开启，直接显示助力邀请窗口
+    if (helpConfig.value?.helpEnabled) {
+      showHelpModal.value = true;
+    } else {
+      showNoDrawsModal.value = true;
+    }
+    return;
+  }
+
+  // 如果不可抽奖，直接返回
+  if (!canDraw.value) {
+    console.log("不可抽奖，检查原因");
+
+    // 已登录但剩余次数为0，显示提示弹窗
+    if (
+      drawInfo.remainingDraws <= 0 &&
+      drawInfo.remainingDrawsToday <= 0 &&
+      helpDraws.value <= 0
+    ) {
+      console.log("剩余次数为0，显示提示弹窗");
+      showNoDrawsModal.value = true;
+      return;
+    }
+
+    return;
+  }
+
+  // 已登录且有剩余次数，开始抽奖
+  console.log("开始抽奖");
   startDraw();
+}
+
+// 助力邀请创建成功回调
+async function onInviteCreated(invite: any) {
+  // 更新助力抽奖次数
+  try {
+    const userInfo = getUserInfoFromCache();
+    if (userInfo?.uid) {
+      const helpStatsRes = await getHelpStats(lottery.value.id, userInfo.uid);
+      if (helpStatsRes.data?.code === 0) {
+        helpDraws.value = helpStatsRes.data.data?.remainingHelpDraws || 0;
+        totalHelpDraws.value = helpStatsRes.data.data?.totalHelpDraws || 0;
+      }
+    }
+  } catch (error) {
+    console.error("更新助力统计失败:", error);
+  }
+}
+
+// 打开助力弹窗
+function openHelpModal() {
+  if (!isLoggedIn()) {
+    openLoginReminder();
+    return;
+  }
+  showHelpModal.value = true;
+}
+
+// 关闭助力弹窗
+function closeHelpModal() {
+  showHelpModal.value = false;
+}
+
+// 关闭剩余次数为0的提示弹窗
+function closeNoDrawsModal() {
+  showNoDrawsModal.value = false;
+}
+
+// 从剩余次数为0的弹窗中打开助力弹窗
+function openHelpModalFromNoDraws() {
+  closeNoDrawsModal();
+  openHelpModal();
+}
+
+// 打开分享弹窗
+function openShareModal() {
+  showShareModal.value = true;
+}
+
+// 关闭分享弹窗
+function closeShareModal() {
+  showShareModal.value = false;
 }
 
 // 根据索引获取转盘扇区SVG路径
@@ -1557,12 +2688,12 @@ function getTextArcPath(index: number) {
   // 计算弧线的中心角度
   const midAngle = (startAngle + endAngle) / 2;
 
-  // 生成文字弧线半径（比扇区半径短一些）
-  // 调整为38更靠近外缘，使文字位置更靠上
-  const textRadius = 38;
+  // 生成文字弧线半径（更靠近转盘边缘，与图片保持距离）
+  // 转盘半径是50，图片在35位置，文字放在42位置，与图片保持7个单位的距离
+  const textRadius = 42;
 
   // 调整弧长，使其比扇区短一些，避免文字太贴近边缘
-  const arcAngleSpan = sectorAngle.value * 0.7;
+  const arcAngleSpan = sectorAngle.value * 0.6; // 稍微缩短弧长，避免文字过于分散
   const textStartAngle = midAngle - arcAngleSpan / 2;
   const textEndAngle = midAngle + arcAngleSpan / 2;
 
@@ -1585,8 +2716,55 @@ function getTextArcPath(index: number) {
     : `M ${x1} ${y1} A ${textRadius} ${textRadius} 0 0 1 ${x2} ${y2}`;
 }
 
-onMounted(() => {
+// 监听登录成功事件
+function handleLoginSuccess(event: any) {
+  console.log("收到登录成功事件:", event.detail);
+  const { token, uuid, uid } = event.detail;
+
+  // 更新缓存中的用户信息
+  saveUserInfo({
+    uuid,
+    token,
+    uid,
+    openName: "用户", // 这里可以后续通过API获取完整信息
+  });
+
+  // 重新获取抽奖详情
   fetchLotteryDetail();
+}
+
+onMounted(async () => {
+  // 首先检查URL参数并获取用户信息
+  await checkUrlParamsAndGetUserInfo();
+
+  // 处理help参数和helpcode参数
+  await handleHelpParam();
+
+  // 然后进行用户信息校验（异步操作，不阻塞页面加载）
+  validateUserInfo()
+    .then((isValid) => {
+      if (!isValid) {
+        console.log("用户信息校验失败，需要重新登录");
+        // 如果校验失败，打开登录弹窗
+        if (isLoggedIn()) {
+          openLoginReminder();
+        }
+      }
+    })
+    .catch((error) => {
+      console.error("用户信息校验过程中发生错误:", error);
+    });
+
+  // 监听登录成功事件
+  window.addEventListener("login-success", handleLoginSuccess);
+
+  // 获取抽奖详情
+  fetchLotteryDetail();
+});
+
+// 组件卸载时清理事件监听
+onUnmounted(() => {
+  window.removeEventListener("login-success", handleLoginSuccess);
 });
 </script>
 
@@ -1724,6 +2902,374 @@ onMounted(() => {
   }
   100% {
     transform: translateX(100%);
+  }
+}
+
+/* 抽奖按钮动画效果 */
+@keyframes pulse-button {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 193, 7, 0.6),
+      inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  25% {
+    transform: scale(1.008);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 193, 7, 0.8),
+      inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: scale(1.015);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 1.2), 0 0 60px rgba(255, 193, 7, 1),
+      inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  75% {
+    transform: scale(1.008);
+    box-shadow: 0 0 25px rgba(255, 215, 0, 1), 0 0 50px rgba(255, 193, 7, 0.8),
+      inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 193, 7, 0.6),
+      inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes text-glow {
+  0% {
+    text-shadow: 2px 2px 0px #b8860b, 4px 4px 8px rgba(0, 0, 0, 0.6),
+      0 0 15px #ffd700, 0 0 25px #ffa500;
+  }
+  25% {
+    text-shadow: 2px 2px 0px #b8860b, 4px 4px 8px rgba(0, 0, 0, 0.6),
+      0 0 20px #ffd700, 0 0 35px #ffa500;
+  }
+  50% {
+    text-shadow: 2px 2px 0px #b8860b, 4px 4px 8px rgba(0, 0, 0, 0.6),
+      0 0 25px #ffd700, 0 0 45px #ffa500, 0 0 65px rgba(255, 215, 0, 0.8);
+  }
+  75% {
+    text-shadow: 2px 2px 0px #b8860b, 4px 4px 8px rgba(0, 0, 0, 0.6),
+      0 0 20px #ffd700, 0 0 35px #ffa500;
+  }
+  100% {
+    text-shadow: 2px 2px 0px #b8860b, 4px 4px 8px rgba(0, 0, 0, 0.6),
+      0 0 15px #ffd700, 0 0 25px #ffa500;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+@keyframes button-hover {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes button-click {
+  0% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1.1);
+  }
+}
+
+/* 应用动画类 */
+.animate-pulse-button {
+  animation: pulse-button 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-text-glow {
+  animation: text-glow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+.button-hover-effect:hover {
+  animation: button-hover 0.3s ease-out forwards;
+}
+
+.button-click-effect:active {
+  animation: button-click 0.2s ease-out;
+}
+
+/* 盲盒动画效果 */
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.6),
+      0 0 60px rgba(236, 72, 153, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-fast {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes pulse-scale {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  75% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes rainbow-shift {
+  0% {
+    background: linear-gradient(
+      45deg,
+      rgba(139, 92, 246, 0.2),
+      rgba(236, 72, 153, 0.2),
+      rgba(6, 182, 212, 0.2)
+    );
+  }
+  33% {
+    background: linear-gradient(
+      45deg,
+      rgba(236, 72, 153, 0.2),
+      rgba(6, 182, 212, 0.2),
+      rgba(16, 185, 129, 0.2)
+    );
+  }
+  66% {
+    background: linear-gradient(
+      45deg,
+      rgba(6, 182, 212, 0.2),
+      rgba(16, 185, 129, 0.2),
+      rgba(245, 158, 11, 0.2)
+    );
+  }
+  100% {
+    background: linear-gradient(
+      45deg,
+      rgba(139, 92, 246, 0.2),
+      rgba(236, 72, 153, 0.2),
+      rgba(6, 182, 212, 0.2)
+    );
+  }
+}
+
+@keyframes energy-float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateY(-10px) translateX(5px) scale(1.1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-5px) translateX(10px) scale(1.2);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-15px) translateX(5px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes hologram-float {
+  0% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translateY(-8px) translateX(8px) scale(1.1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(-12px) translateX(12px) scale(1.2);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-8px) translateX(16px) scale(1.1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(0) translateX(20px) scale(1);
+    opacity: 0.7;
+  }
+}
+
+@keyframes celebration-burst {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(-10px) translateX(5px) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-20px) translateX(10px) scale(1.2);
+    opacity: 0.9;
+  }
+  60% {
+    transform: translateY(-30px) translateX(15px) scale(1.1);
+    opacity: 0.7;
+  }
+  80% {
+    transform: translateY(-40px) translateX(20px) scale(0.8);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-50px) translateX(25px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* 应用动画类 */
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 3s linear infinite;
+}
+
+.animate-spin-fast {
+  animation: spin-fast 1.5s linear infinite;
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 4s linear infinite;
+}
+
+.animate-pulse-scale {
+  animation: pulse-scale 1s ease-in-out infinite;
+}
+
+.animate-box-opening {
+  animation: box-opening 1.5s ease-in-out;
+}
+
+.animate-rainbow-shift {
+  animation: rainbow-shift 3s ease-in-out infinite;
+}
+
+.energy-particle {
+  animation: energy-float ease-in-out infinite;
+}
+
+.hologram-particle {
+  animation: hologram-float ease-in-out infinite;
+}
+
+.celebration-particle {
+  animation: celebration-burst ease-out infinite;
+}
+
+.decoration-particle {
+  animation: decoration-float ease-in-out infinite;
+}
+
+@keyframes decoration-float {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translateY(-5px) translateX(3px) scale(1.1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-8px) translateX(6px) scale(1.2);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-5px) translateX(9px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes box-opening {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  }
+  20% {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+  }
+  40% {
+    transform: scale(1.1);
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.7),
+      0 0 60px rgba(236, 72, 153, 0.4);
+  }
+  60% {
+    transform: scale(1.15);
+    box-shadow: 0 0 50px rgba(139, 92, 246, 0.8),
+      0 0 80px rgba(236, 72, 153, 0.6);
+  }
+  80% {
+    transform: scale(1.1);
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.7),
+      0 0 60px rgba(236, 72, 153, 0.4);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
   }
 }
 </style>

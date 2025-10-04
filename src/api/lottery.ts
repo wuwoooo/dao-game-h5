@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const THIRD_PARTY_URL = import.meta.env.VITE_Aisky_API_BASE_URL;
 
 // 获取临时token
 export async function getTempToken(deviceId: string) {
@@ -100,9 +101,19 @@ export async function getLotteryDetail(id: number, uid?: string | null) {
 }
 
 // 参与抽奖
-export async function participateLottery(lotteryId: number, uid: string) {
+export async function participateLottery(
+  lotteryId: number,
+  uid: string,
+  uuid?: string,
+  token?: string
+) {
   return withTempToken(() =>
-    axios.post(`${BASE_URL}/v1/lottery/participate`, { lotteryId, uid })
+    axios.post(`${BASE_URL}/v1/lottery/participate`, {
+      lotteryId,
+      uid,
+      uuid,
+      token,
+    })
   );
 }
 
@@ -136,7 +147,7 @@ export async function updateWinnerContact(id: number, contactInfo: string) {
   );
 }
 
-// ============ 好友助力相关接口 ============
+// 好友助力相关接口
 
 // 创建助力邀请
 export async function createHelpInvite(
@@ -149,6 +160,9 @@ export async function createHelpInvite(
     inviterUid,
     inviteUrl,
   };
+
+  console.log("API请求数据:", requestData);
+  console.log("请求URL:", `${BASE_URL}/v1/lottery/help/invite`);
 
   return withTempToken(() =>
     axios.post(`${BASE_URL}/v1/lottery/help/invite`, requestData)
@@ -213,9 +227,55 @@ export async function getHelpConfig(lotteryId: number) {
   return axios.get(`${BASE_URL}/v1/lottery/help/${lotteryId}/config`);
 }
 
-// 获取人气王奖项列表
-export async function getPopularityRewards(lotteryId: number) {
-  return withTempToken(() =>
-    axios.get(`${BASE_URL}/v1/lottery/popularity-reward/list/${lotteryId}`)
-  );
+// 第三方接口：获取用户基础信息
+export async function getThirdPartyUserInfo(
+  uuid: string,
+  token: string,
+  uid: string
+) {
+  return axios.get(`${THIRD_PARTY_URL}/open/redpacket/my/info`, {
+    params: {
+      uuid,
+      token,
+      uid,
+    },
+  });
+}
+
+// 第三方接口：根据活动ID查询聊天群ID
+export async function getActivityChatroomId(
+  uuid: string,
+  token: string,
+  uid: string,
+  activityId: string
+) {
+  return axios.get(`${THIRD_PARTY_URL}/open/activity/details`, {
+    params: {
+      uuid,
+      token,
+      uid,
+      activityId,
+      locale: "zh_HK",
+    },
+  });
+}
+
+// 第三方接口：加入聊天室
+export async function joinChatroom(
+  uuid: string,
+  token: string,
+  uid: string,
+  roomId: string,
+  userinfo?: string
+) {
+  return axios.post(`${THIRD_PARTY_URL}/open/activity/chatroom/join`, null, {
+    params: {
+      uuid,
+      token,
+      uid,
+      userinfo,
+      roomId,
+      locale: "zh_HK",
+    },
+  });
 }
