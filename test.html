@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>写给十岁的你</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+          "Microsoft YaHei", sans-serif;
+        line-height: 1.7;
+        color: #333;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #fafafa;
+      }
+
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px 30px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 50px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .title {
+        font-size: 24px;
+        color: #222;
+        margin: 0 0 10px 0;
+        font-weight: 500;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: #888;
+        margin: 0;
+      }
+
+      .section {
+        margin-bottom: 40px;
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+      }
+
+      .age-number {
+        font-size: 20px;
+        font-weight: bold;
+        color: #ff6b6b;
+        min-width: 30px;
+        text-align: center;
+        background: #fff5f5;
+        padding: 8px 12px;
+        border-radius: 20px;
+        flex-shrink: 0;
+      }
+
+      .content {
+        flex: 1;
+        font-size: 15px;
+        line-height: 1.8;
+        color: #444;
+      }
+
+      .quote {
+        color: #666;
+        font-style: italic;
+        margin: 10px 0;
+        padding: 0 10px;
+        border-left: 3px solid #ff6b6b;
+        background: #fafafa;
+        padding: 15px 20px;
+        border-radius: 0 8px 8px 0;
+        margin: 15px 0;
+      }
+
+      .final {
+        text-align: center;
+        margin-top: 60px;
+        padding: 30px 20px;
+        background: linear-gradient(45deg, #ff6b6b, #ffa8a8);
+        color: white;
+        border-radius: 12px;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      .signature {
+        text-align: center;
+        margin-top: 30px;
+        color: #888;
+        font-size: 14px;
+        font-style: italic;
+      }
+
+      /* 手机适配 */
+      @media (max-width: 600px) {
+        .container {
+          padding: 30px 20px;
+        }
+
+        .section {
+          gap: 15px;
+        }
+
+        .age-number {
+          font-size: 18px;
+          min-width: 25px;
+          padding: 6px 10px;
+        }
+
+        .content {
+          font-size: 14px;
+        }
+
+        .title {
+          font-size: 22px;
+        }
+      }
+
+      /* 简单的入场动画 */
+      .section {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease forwards;
+      }
+
+      .section:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .section:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      .section:nth-child(4) {
+        animation-delay: 0.3s;
+      }
+      .section:nth-child(5) {
+        animation-delay: 0.4s;
+      }
+      .section:nth-child(6) {
+        animation-delay: 0.5s;
+      }
+      .section:nth-child(7) {
+        animation-delay: 0.6s;
+      }
+      .section:nth-child(8) {
+        animation-delay: 0.7s;
+      }
+      .section:nth-child(9) {
+        animation-delay: 0.8s;
+      }
+      .section:nth-child(10) {
+        animation-delay: 0.9s;
+      }
+      .section:nth-child(11) {
+        animation-delay: 1s;
+      }
+
+      @keyframes fadeInUp {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1 class="title">写给十岁的你</h1>
+        <p class="subtitle">爸爸的心里话</p>
+      </div>
+
+      <div class="section">
+        <div class="age-number">10</div>
+        <div class="content">
+          转眼你就要 10
+          岁了。十年，对你而言只是一个开始，但对爸爸来说，却是生命中最重要的一段旅程，因为这十年里有你。
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="age-number">9</div>
+        <div class="content">
+          <div class="quote">"你想活出怎样的人生？"</div>
+          这是个大问题，但别着急去寻找答案。人生就像一场游戏，途中会不断解锁新的地图，遇见新的角色，也发现新的自己。
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="age-number">8</div>
+        <div class="content">
+          <div class="quote">
+            "人生不是一次性填完的试卷，而是一条流淌不息的河流。"
+          </div>
+          你不必急着奔向远方，只要认真感受脚下的每一步，它们终将汇聚成你独有的方向。
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="age-number">7</div>
+        <div class="content">
+          <div class="quote">
+            "真正的强大，不是从未跌倒，而是一次次跌倒后依然爬起。"
+          </div>
+          你可能会因为考试失落，可能会因朋友的误解而难过，但请记住，笑着擦干眼泪继续前行，就是最勇敢的模样。
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="age-number">6</div>
+        <div class="content">
+          <div class="quote">"孤独不是空虚，它能让你听见内心的声音。"</div>
+          <div class="quote">"灿烂不是永恒，它提醒你要珍惜眼前的温暖。"</div>
+          这两样，你都会在成长中遇到，也都会慢慢学会与它们相处。
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="age-number">5</div>
+        <div class="content">
+          爸爸希望你善良而有勇气。
+          <div class="quote">
+            "善良会让你感受到世界的温柔，勇气会带你穿越世界的风浪。"
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="age-number">4</div>
+        <div class="content">
+          爸爸希望你自由而有责任。
+          <div class="quote">
+            "自由是选择自己喜欢的方向，责任是守护别人心里的期待。"
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="age-number">3</div>
+        <div class="content">
+          爸爸希望你真实而有热爱。
+          <div class="quote">
+            "真实是敢于做你自己，不必取悦所有人；热爱是让你心跳加速的东西，它会点亮你的人生。"
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="age-number">2</div>
+        <div class="content">
+          爸爸不能替你找到答案，但可以陪你走在寻找答案的路上。
+          <div class="quote">
+            "人生最美的不是抵达，而是你一路上闪亮的脚步。"
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="age-number">1</div>
+        <div class="content">
+          所以，然然，未来的每一天，请大胆去过，认真去爱。
+          <div class="quote">
+            "你想活出怎样的人生？——只要是你真心想要的，就很好。"
+          </div>
+        </div>
+      </div>
+
+      <div class="final">
+        愿你永远保持那份纯真与勇敢<br />
+        生日快乐，我的宝贝！
+      </div>
+
+      <div class="signature">—— 爱你的爸爸</div>
+    </div>
+  </body>
+</html>
