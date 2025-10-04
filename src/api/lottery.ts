@@ -279,3 +279,10 @@ export async function joinChatroom(
     },
   });
 }
+
+// 获取人气王奖励配置列表
+export async function getPopularityRewards(lotteryId: number) {
+  return withTempToken(() =>
+    axios.get(`${BASE_URL}/v1/lottery/popularity-reward/list/${lotteryId}`)
+  );
+}

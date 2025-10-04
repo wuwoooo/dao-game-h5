@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 *.md
+*.sql
+*.sh
 
 # Editor directories and files
 .vscode/*

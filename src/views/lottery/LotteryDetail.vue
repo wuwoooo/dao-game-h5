@@ -1024,67 +1024,276 @@
         </div>
       </div>
 
-      <!-- 活动详情 -->
-      <div class="relative mb-10 overflow-hidden rounded-xl">
-        <!-- 背景图层（模糊） -->
-        <div
-          class="absolute inset-0"
-          :style="{
-            backgroundImage: `url(${getSafeImageUrl(lottery?.background)})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'blur(6px)',
-            transform: 'scale(1.1)',
-            zIndex: 0,
-          }"
-        ></div>
-
-        <!-- 半透明遮罩层（让内容更清晰） -->
-        <div class="absolute inset-0 bg-black/40 z-[1]"></div>
-
-        <!-- Glassmorphism 内容容器 -->
-        <div
-          class="relative z-[2] p-6 md:p-8 flex flex-col md:flex-row items-center backdrop-blur-md bg-white/10 border border-white/20 rounded-xl shadow-lg ring-1 ring-white/10 transition-all"
-        >
-          <img
-            :src="getSafeImageUrl(lottery?.icon)"
-            :alt="t('lottery.lotteryDetail.activityIcon')"
-            class="w-24 h-24 md:w-32 md:h-32 rounded-xl object-cover shadow-xl mb-4 md:mb-0 md:mr-6"
-          />
-
-          <div class="flex-1 text-center md:text-left text-white">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">
-              {{ lottery.name }}
-            </h1>
+      <!-- 活动详情：两列布局 -->
+      <div class="mb-10">
+        <!-- 使用grid布局实现两列并列显示 -->
+        <div class="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+          <!-- 左边列：活动信息和抽奖奖项 -->
+          <div class="space-y-3 sm:space-y-4 md:space-y-6">
+            <!-- 活动信息卡片 -->
             <div
-              class="mb-2 flex flex-wrap justify-center md:justify-start gap-2"
+              class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-6 border border-indigo-500/20 flex flex-col h-48 overflow-y-auto"
             >
-              <span class="text-xs px-3 py-1 rounded-full bg-indigo-600">
-                {{
-                  lottery.lotteryType === "wheel"
-                    ? t("lottery.lotteryList.wheel")
-                    : t("lottery.lotteryList.blindbox")
-                }}
-              </span>
-              <span class="text-xs px-3 py-1 rounded-full bg-purple-600">
-                {{ t("lottery.lotteryDetail.sponsorLabel") }}:
-                {{ lottery.sponsor }}
-              </span>
-            </div>
-            <p class="opacity-80 mb-4">{{ lottery.description }}</p>
-            <div class="opacity-60 text-sm">
+              <h2
+                class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 flex items-center"
+              >
+                <svg
+                  class="w-5 h-5 mr-2 text-indigo-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                {{ t("lottery.lotteryDetail.activityInfo") }}
+              </h2>
               <div>
-                活动时间: {{ formatDate(lottery.startTime) }} 至
-                {{ formatDate(lottery.endTime) }}
+                <!-- 活动图标和名称 -->
+                <div class="flex items-start mb-4">
+                  <img
+                    :src="
+                      lottery.icon ||
+                      'https://img.aisky.io/api/aQAdzWGNitaaleNn.png'
+                    "
+                    :alt="lottery.name"
+                    class="w-12 h-12 rounded-lg object-cover mr-3 flex-shrink-0"
+                  />
+                  <div class="flex-1">
+                    <h3
+                      class="text-white font-medium text-sm sm:text-base mb-1 text-left"
+                    >
+                      {{ lottery.name }}
+                    </h3>
+                    <div class="text-indigo-300 text-xs sm:text-sm text-left">
+                      {{ formatDate(lottery.startTime) }}
+                      {{ t("lottery.lotteryDetail.to") }}
+                      {{ formatDate(lottery.endTime) }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 主办方 -->
+                <div class="mt-3">
+                  <div class="flex items-center">
+                    <span class="text-indigo-300 text-xs sm:text-sm"
+                      >{{ t("lottery.lotteryDetail.sponsor") }}:</span
+                    >
+                    <span class="text-white text-xs sm:text-sm ml-2">{{
+                      lottery.sponsor
+                    }}</span>
+                  </div>
+                </div>
               </div>
-              <div v-if="lottery.rule">
-                <span
-                  >每人总共 {{ lottery.rule.drawLimit }} 次机会，每天限
-                  {{ lottery.rule.dailyLimit }} 次</span
+            </div>
+
+            <!-- 抽奖奖项表格 -->
+            <div
+              class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-6 border border-indigo-500/20 flex flex-col h-64"
+            >
+              <h2
+                class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 flex items-center"
+              >
+                <svg
+                  class="w-5 h-5 mr-2 text-indigo-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
                 >
-                <span v-if="lottery.rule.additionalInfo">
-                  · {{ lottery.rule.additionalInfo }}</span
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                {{ t("lottery.lotteryDetail.lotteryPrizes") }}
+              </h2>
+              <div class="overflow-x-auto flex-1">
+                <table class="w-full text-xs sm:text-sm">
+                  <thead>
+                    <tr class="border-b border-indigo-500/20">
+                      <th
+                        class="py-1 px-2 sm:py-2 sm:px-3 text-left text-indigo-300 font-medium"
+                      >
+                        {{ t("lottery.lotteryDetail.prize") }}
+                      </th>
+                      <th
+                        class="py-1 px-2 sm:py-2 sm:px-3 text-left text-indigo-300 font-medium"
+                      >
+                        {{ t("lottery.lotteryDetail.prizeName") }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="(prize, index) in displayPrizes"
+                      :key="prize.id"
+                      class="border-b border-indigo-500/10 hover:bg-white/5 transition-colors"
+                    >
+                      <td
+                        class="py-2 px-2 sm:py-3 sm:px-3 text-white text-left"
+                      >
+                        {{ prize.level }}
+                      </td>
+                      <td
+                        class="py-2 px-2 sm:py-3 sm:px-3 text-white text-left"
+                      >
+                        {{ prize.name }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 右边列：人气王榜单和人气王奖项 -->
+          <div class="space-y-3 sm:space-y-4 md:space-y-6">
+            <!-- 人气王榜单 -->
+            <div
+              class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-6 border border-indigo-500/20 flex flex-col h-48 overflow-y-auto"
+            >
+              <div class="flex items-center justify-between mb-3 sm:mb-4">
+                <h2
+                  class="text-lg sm:text-xl font-bold text-white flex items-center"
                 >
+                  <svg
+                    class="w-5 h-5 mr-2 text-yellow-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                    />
+                  </svg>
+                  {{ t("lottery.lotteryDetail.popularityKingRanking") }}
+                </h2>
+                <button
+                  @click="showFullRanking"
+                  class="text-indigo-300 hover:text-white text-sm transition-colors"
+                >
+                  {{ t("lottery.lotteryDetail.more") }}
+                </button>
+              </div>
+              <div v-if="popularityRanking.length > 0" class="space-y-1 flex-1">
+                <div
+                  v-for="(rank, index) in popularityRanking.slice(0, 5)"
+                  :key="rank.id"
+                  class="flex items-center justify-between py-1"
+                >
+                  <div class="flex items-center space-x-3">
+                    <div
+                      class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+                      :class="{
+                        'bg-yellow-500 text-yellow-900': index === 0,
+                        'bg-gray-400 text-gray-900': index === 1,
+                        'bg-orange-500 text-orange-900': index === 2,
+                        'bg-indigo-500 text-white': index > 2,
+                      }"
+                    >
+                      {{ index + 1 }}
+                    </div>
+                    <div>
+                      <div class="text-white text-sm font-medium">
+                        {{ truncateUsername(rank.userName) }}
+                      </div>
+                      <div class="text-indigo-300 text-xs">
+                        {{ rank.lotteryName }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <div class="text-yellow-400 text-sm font-medium">
+                      {{ rank.totalHelpDraws }}
+                      {{ t("lottery.components.helpInvite.times") }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="text-center py-8 text-indigo-300">
+                <p>{{ t("lottery.lotteryDetail.noRankingData") }}</p>
+              </div>
+            </div>
+
+            <!-- 人气王奖项表格 -->
+            <div
+              class="bg-white/5 backdrop-blur-sm rounded-xl p-3 sm:p-4 md:p-6 border border-indigo-500/20 flex flex-col h-64"
+            >
+              <h2
+                class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 flex items-center"
+              >
+                <svg
+                  class="w-5 h-5 mr-2 text-yellow-400"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M11.9999 1L17.1962 7.6085L24.0005 8.2626L17.9951 13.3167L19.392 20L11.9999 16.8501L4.60787 20L6.0048 13.3167L-0.000488281 8.2626L6.8037 7.6085L11.9999 1Z"
+                  />
+                </svg>
+                {{ t("lottery.lotteryDetail.popularityKingPrizes") }}
+              </h2>
+              <div
+                v-if="popularityRewards.length > 0"
+                class="overflow-x-auto flex-1"
+              >
+                <table class="w-full text-xs sm:text-sm">
+                  <thead>
+                    <tr class="border-b border-indigo-500/20">
+                      <th
+                        class="py-1 px-2 sm:py-2 sm:px-3 text-left text-indigo-300 font-medium"
+                      >
+                        {{ t("lottery.lotteryDetail.ranking") }}
+                      </th>
+                      <th
+                        class="py-1 px-2 sm:py-2 sm:px-3 text-left text-indigo-300 font-medium"
+                      >
+                        {{ t("lottery.lotteryDetail.prizeName") }}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="reward in popularityRewards"
+                      :key="reward.id"
+                      class="border-b border-indigo-500/10 hover:bg-white/5 transition-colors"
+                    >
+                      <td class="py-2 px-2 sm:py-3 sm:px-3 text-left">
+                        <div
+                          class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
+                          :class="{
+                            'bg-yellow-500 text-yellow-900':
+                              reward.rankPosition === 1,
+                            'bg-gray-400 text-gray-900':
+                              reward.rankPosition === 2,
+                            'bg-orange-500 text-orange-900':
+                              reward.rankPosition === 3,
+                            'bg-indigo-500 text-white': reward.rankPosition > 3,
+                          }"
+                        >
+                          {{ reward.rankPosition }}
+                        </div>
+                      </td>
+                      <td
+                        class="py-2 px-2 sm:py-3 sm:px-3 text-white text-left"
+                      >
+                        {{ reward.rewardTitle }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else class="text-center py-8 text-indigo-300">
+                <p>{{ t("lottery.lotteryDetail.noPrizesSet") }}</p>
               </div>
             </div>
           </div>
@@ -1164,7 +1373,7 @@
                 @click="goToMyLottery"
                 class="px-5 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-all"
               >
-                查看奖品
+                {{ t("lottery.lotteryDetail.viewPrizes") }}
               </button>
               <button
                 v-if="!canDraw"
@@ -1299,174 +1508,6 @@
           </div>
         </div>
       </div>
-
-      <!-- 奖品列表 -->
-      <div
-        class="prize-list bg-white bg-opacity-5 backdrop-blur-sm rounded-xl p-6 mb-10"
-      >
-        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-          <svg
-            class="w-6 h-6 mr-2 text-indigo-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          奖品池详情
-        </h2>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="prize in displayPrizes"
-            :key="prize.id"
-            class="bg-gradient-to-br from-indigo-900/50 to-purple-900/50 backdrop-blur-sm rounded-lg overflow-hidden border border-indigo-500/20 transform transition-all hover:scale-[1.02] hover:shadow-[0_0_15px_rgba(139,92,246,0.2)]"
-          >
-            <!-- 奖品图片 -->
-            <div class="relative h-36 overflow-hidden">
-              <!-- 谢谢参与奖项显示特殊占位符 -->
-              <div
-                v-if="
-                  prize.name === t('lottery.lotteryDetail.thanksParticipation')
-                "
-                class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-600 to-gray-800"
-              >
-                <div class="text-center text-white">
-                  <svg
-                    class="w-12 h-12 mx-auto mb-2 opacity-60"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                  >
-                    <path d="M9 12l2 2 4-4" />
-                    <circle cx="12" cy="12" r="10" />
-                  </svg>
-                  <p class="text-sm opacity-80">谢谢参与</p>
-                </div>
-              </div>
-              <!-- 其他奖项显示图片 -->
-              <img
-                v-else
-                :src="getSafeImageUrl(prize.image)"
-                :alt="t('lottery.lotteryDetail.prizeImage')"
-                class="w-full h-full object-cover"
-              />
-              <div
-                class="absolute top-0 right-0 m-2 px-2 py-1 text-xs font-semibold rounded-full bg-purple-900/80 text-white"
-              >
-                {{ prize.level }}
-              </div>
-              <div
-                class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"
-              ></div>
-            </div>
-
-            <div class="p-4">
-              <div class="flex justify-between items-start mb-3">
-                <h3 class="text-lg font-bold text-white">{{ prize.name }}</h3>
-                <div
-                  class="flex items-center bg-indigo-900/50 rounded px-2 py-1"
-                >
-                  <svg
-                    class="w-4 h-4 text-indigo-300 mr-1"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  <span class="text-xs text-indigo-300">
-                    {{ formatProbability(prize.probability) }}
-                  </span>
-                </div>
-              </div>
-
-              <div class="flex justify-between items-center mt-2 text-sm">
-                <div class="flex items-center text-indigo-300">
-                  <!-- 稀有度图标 -->
-                  <div
-                    :class="[
-                      getRarityIconAndColor(prize.probability).color,
-                      'mr-1 flex items-center',
-                    ]"
-                  >
-                    <!-- 传说 - 皇冠图标 -->
-                    <svg
-                      v-if="prize.probability < 1"
-                      class="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path
-                        d="M11.9999 1L17.1962 7.6085L24.0005 8.2626L17.9951 13.3167L19.392 20L11.9999 16.8501L4.60787 20L6.0048 13.3167L-0.000488281 8.2626L6.8037 7.6085L11.9999 1Z"
-                      ></path>
-                    </svg>
-                    <!-- 史诗 - 宝石图标 -->
-                    <svg
-                      v-else-if="prize.probability < 5"
-                      class="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 2L6 7L12 22L18 7L12 2Z"></path>
-                    </svg>
-                    <!-- 稀有 - 星星图标 -->
-                    <svg
-                      v-else-if="prize.probability < 10"
-                      class="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path
-                        d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z"
-                      ></path>
-                    </svg>
-                    <!-- 高级 - 徽章图标 -->
-                    <svg
-                      v-else-if="prize.probability < 20"
-                      class="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path
-                        d="M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 12 2ZM12 20C7.59 20 4 16.41 4 12C4 7.59 7.59 4 12 4C16.41 4 20 7.59 20 12C20 16.41 16.41 20 12 20ZM12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15Z"
-                      ></path>
-                    </svg>
-                    <!-- 普通 - 圆形图标 -->
-                    <svg
-                      v-else
-                      class="w-4 h-4"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path
-                        d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z"
-                      ></path>
-                    </svg>
-                  </div>
-                  <span>稀有度: {{ formatRarity(prize.probability) }}</span>
-                </div>
-                <div class="text-indigo-300">
-                  {{
-                    formatQuantity(prize.totalQuantity, prize.remainQuantity)
-                  }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- 分享弹窗 -->
@@ -1479,6 +1520,111 @@
       :user-info="shareUserInfo"
       @close="closeShareModal"
     />
+
+    <!-- 完整榜单弹窗 -->
+    <div
+      v-if="showFullRankingModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      @click="closeFullRankingModal"
+    >
+      <div
+        class="bg-gradient-to-br from-[#1e293b] to-[#334155] rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto border border-indigo-500/20"
+        @click.stop
+      >
+        <!-- 弹窗头部 -->
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-bold text-white flex items-center">
+            <svg
+              class="w-6 h-6 mr-2 text-yellow-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+              />
+            </svg>
+            {{ t("lottery.lotteryDetail.fullRankingTitle") }}
+          </h3>
+          <button
+            @click="closeFullRankingModal"
+            class="text-gray-400 hover:text-white transition-colors"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- 榜单内容 -->
+        <div v-if="fullRankingData.length > 0" class="space-y-2">
+          <div
+            v-for="(rank, index) in fullRankingData"
+            :key="rank.id"
+            class="flex items-center justify-between py-2"
+          >
+            <div class="flex items-center space-x-4">
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
+                :class="{
+                  'bg-yellow-500 text-yellow-900': index === 0,
+                  'bg-gray-400 text-gray-900': index === 1,
+                  'bg-orange-500 text-orange-900': index === 2,
+                  'bg-indigo-500 text-white': index > 2,
+                }"
+              >
+                {{ index + 1 }}
+              </div>
+              <div>
+                <div class="text-white text-base font-medium">
+                  {{ truncateUsername(rank.userName) }}
+                </div>
+                <div class="text-indigo-300 text-sm">
+                  {{ rank.lotteryName }}
+                </div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-yellow-400 text-lg font-medium">
+                {{ rank.totalHelpDraws }}
+                {{ t("lottery.components.helpInvite.times") }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="text-center py-8 text-indigo-300">
+          <svg
+            class="w-16 h-16 mx-auto mb-4 text-indigo-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+            />
+          </svg>
+          <p class="text-lg">
+            {{ t("lottery.lotteryDetail.noRankingDataModal") }}
+          </p>
+        </div>
+      </div>
+    </div>
 
     <!-- 悬浮进群按钮 -->
     <div
@@ -1536,6 +1682,8 @@ import {
   participateLottery,
   getHelpStats,
   getHelpConfig,
+  getHelpRanking,
+  getPopularityRewards,
   getThirdPartyUserInfo,
   assistLottery,
   getActivityChatroomId,
@@ -1605,6 +1753,15 @@ const showShareModal = ref(false);
 
 // 聊天室ID缓存
 const cachedRoomId = ref<string | null>(null);
+
+// 人气王排行榜数据
+const popularityRanking = ref<any[]>([]);
+// 人气王奖励数据
+const popularityRewards = ref<any[]>([]);
+// 显示完整榜单弹窗
+const showFullRankingModal = ref(false);
+// 完整排行榜数据
+const fullRankingData = ref<any[]>([]);
 
 // 获取用户信息用于短链生成
 const shareUserInfo = computed(() => {
@@ -2169,6 +2326,55 @@ async function fetchLotteryDetail() {
           console.error("获取助力统计失败:", error);
         }
       }
+
+      // 获取人气王排行榜
+      try {
+        const rankingRes = await getHelpRanking(lotteryId, 10);
+        if (rankingRes.data?.code === 0) {
+          popularityRanking.value = rankingRes.data.data || [];
+          // 按照 totalHelpDraws 字段进行倒序排序
+          popularityRanking.value.sort(
+            (a, b) => (b.totalHelpDraws || 0) - (a.totalHelpDraws || 0)
+          );
+
+          // 获取排行榜中的用户昵称
+          if (popularityRanking.value.length > 0) {
+            const userUids = popularityRanking.value
+              .map((rank) => rank.uid)
+              .filter((uid) => uid);
+
+            if (userUids.length > 0) {
+              const nicknames = await fetchUserNicknames(userUids);
+              // 更新排行榜中的用户昵称
+              popularityRanking.value.forEach((rank) => {
+                if (rank.uid && nicknames[rank.uid]) {
+                  rank.userName = nicknames[rank.uid];
+                }
+              });
+            }
+          }
+        }
+      } catch (error) {
+        console.error("获取人气王排行榜失败:", error);
+        // 即使获取失败，也不影响页面显示
+        popularityRanking.value = [];
+      }
+
+      // 获取人气王奖励配置
+      try {
+        const rewardsRes = await getPopularityRewards(lotteryId);
+        if (rewardsRes.data?.code === 0) {
+          popularityRewards.value = rewardsRes.data.data || [];
+          // 按照排名位置排序
+          popularityRewards.value.sort(
+            (a, b) => (a.rankPosition || 0) - (b.rankPosition || 0)
+          );
+        }
+      } catch (error) {
+        console.error("获取人气王奖励配置失败:", error);
+        // 即使获取失败，也不影响页面显示
+        popularityRewards.value = [];
+      }
     } else {
       lottery.value = null;
       throw new Error(res.data?.msg || "获取抽奖活动详情失败");
@@ -2242,6 +2448,29 @@ function formatDate(dateStr: string) {
   return `${date.getFullYear()}-${(date.getMonth() + 1)
     .toString()
     .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+}
+
+// 截取用户名，只显示前10位
+function truncateUsername(name: string | undefined | null): string {
+  if (!name) return "未知用户";
+  return name.length > 10 ? name.substring(0, 10) + "..." : name;
+}
+
+// 获取用户昵称
+async function fetchUserNicknames(uids: string[]) {
+  if (!uids.length) return {};
+
+  try {
+    const { getNicknames } = await import("../../api/user");
+    const uidsStr = uids.join(",");
+    const res = await getNicknames(uidsStr);
+    if (res.data && res.data.status === 200 && res.data.attachment) {
+      return res.data.attachment;
+    }
+  } catch (error) {
+    console.error("获取用户昵称失败:", error);
+  }
+  return {};
 }
 
 // 获取奖品颜色
@@ -2667,6 +2896,50 @@ function openShareModal() {
 // 关闭分享弹窗
 function closeShareModal() {
   showShareModal.value = false;
+}
+
+// 显示完整榜单
+async function showFullRanking() {
+  try {
+    const lotteryId = Number(route.params.id);
+    if (!isNaN(lotteryId)) {
+      // 获取20条排行榜数据
+      const rankingRes = await getHelpRanking(lotteryId, 20);
+      if (rankingRes.data?.code === 0) {
+        fullRankingData.value = rankingRes.data.data || [];
+        // 按照 totalHelpDraws 字段进行倒序排序
+        fullRankingData.value.sort(
+          (a, b) => (b.totalHelpDraws || 0) - (a.totalHelpDraws || 0)
+        );
+
+        // 获取排行榜中的用户昵称
+        if (fullRankingData.value.length > 0) {
+          const userUids = fullRankingData.value
+            .map((rank) => rank.uid)
+            .filter((uid) => uid);
+
+          if (userUids.length > 0) {
+            const nicknames = await fetchUserNicknames(userUids);
+            // 更新排行榜中的用户昵称
+            fullRankingData.value.forEach((rank) => {
+              if (rank.uid && nicknames[rank.uid]) {
+                rank.userName = nicknames[rank.uid];
+              }
+            });
+          }
+        }
+      }
+    }
+    showFullRankingModal.value = true;
+  } catch (error) {
+    console.error("获取完整排行榜失败:", error);
+    showFullRankingModal.value = true;
+  }
+}
+
+// 关闭完整榜单弹窗
+function closeFullRankingModal() {
+  showFullRankingModal.value = false;
 }
 
 // 根据索引获取转盘扇区SVG路径
