@@ -48,6 +48,10 @@ export default {
     helpCount: "助力人数",
     receivedHelp: "已获助力",
 
+    // 消息功能
+    sendMessage: "发送消息",
+    message: "消息",
+
     // 转盘相关
     wheelTitle: "幸运转盘",
     clickToDraw: "点击抽奖",
@@ -70,18 +74,13 @@ export default {
 
     // 奖品信息
     prizeInfo: "奖品信息",
-    prizeName: "奖品名称",
-    prizeLevel: "奖品等级",
     prizeStock: "剩余库存",
     prizeWinRate: "中奖概率",
 
     // 活动信息
-    activityInfo: "活动信息",
-    activityName: "关联活动",
     viewActivity: "查看活动",
     startTime: "开始时间",
     endTime: "结束时间",
-    sponsor: "主办方",
 
     // 规则说明
     rules: "活动规则",
@@ -108,7 +107,6 @@ export default {
     refreshSuccess: "刷新成功",
 
     // 活动信息
-    activityTime: "活动时间",
     sponsorLabel: "主办方",
     drawRules: "每人总共 {total} 次机会，每天限 {daily} 次",
 
@@ -137,7 +135,6 @@ export default {
     // 其他页面文字
     defaultTitle: "精彩抽奖活动",
     defaultDescription: "快来参与这个精彩的抽奖活动，赢取丰厚奖品！",
-    backToList: "返回抽奖列表",
     backToHome: "返回星际港",
     dailyDraws: "今日抽奖次数",
     drawButton: "抽奖按钮",
@@ -145,21 +142,20 @@ export default {
     prizeImage: "奖品图片",
     joinGroup: "进群",
     enjoyBenefits: "享福利",
-    joinGroupBenefits: "进群享福利",
 
     // 新增的两列布局相关文本
     activityInfo: "活动信息",
     activityName: "活动名称",
-    sponsor: "赞助方",
+    sponsor: "主办方",
     activityType: "活动类型",
     activityTime: "活动时间",
     lotteryRules: "抽奖规则",
     activityDescription: "活动描述",
     lotteryPrizes: "抽奖奖项",
-    prizeLevel: "等级",
+    prizeLevel: "奖项",
     prizeName: "奖品",
     probability: "概率",
-    popularityKingRanking: "人气王 TOP5",
+    popularityKingRanking: "人气王排行",
     popularityKingPrizes: "人气王奖项",
     ranking: "排名",
     prize: "奖项",
@@ -168,8 +164,6 @@ export default {
     more: "更多",
     fullRankingTitle: "完整人气王榜单",
     noRankingDataModal: "暂无排行榜数据",
-    viewPrizes: "查看奖品",
-    sponsor: "主办方",
     to: "至",
   },
 
@@ -353,6 +347,10 @@ export default {
       shareInvite: "分享助力邀请",
       viewRecords: "查看助力记录",
       popularityKing: "谁是人气王",
+      popularityRewards: "人气王奖励",
+      championReward: "冠军奖励",
+      runnerUpReward: "亚军奖励",
+      thirdPlaceReward: "季军奖励",
       times: "次",
       inviteLinkNotReady: "邀请链接不存在或正在生成中",
       allHelpRecords: "全部助力记录",
@@ -404,5 +402,21 @@ export default {
     unknownError: "未知错误",
     operationSuccess: "操作成功",
     operationFailed: "操作失败",
+  },
+
+  // 消息模块
+  message: {
+    online: "在线",
+    noMessages: "暂无消息",
+    inputPlaceholder: "输入消息...",
+    justNow: "刚刚",
+    minutesAgo: "分钟前",
+    hoursAgo: "小时前",
+    sendMessage: "发送消息",
+    message: "消息",
+    conversation: "对话",
+    send: "发送",
+    sending: "发送中...",
+    close: "关闭",
   },
 };

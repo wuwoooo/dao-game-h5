@@ -4,7 +4,6 @@ import { useRouter } from "vue-router";
 import { getUserInfo as getUserInfoApi } from "./api/user";
 import LoginReminder from "./components/LoginReminder.vue";
 import LoginModal from "./components/LoginModal.vue";
-import { getQueryParams } from "./utils/auth";
 import message from "./utils/message";
 import {
   saveUserInfo,

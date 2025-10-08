@@ -229,6 +229,7 @@ import {
   getRandomShareSlogan,
   type ShareConfig,
 } from "../utils/share";
+import message from "../utils/message";
 
 // 导入缓存函数（需要从内部导入，因为不是导出的函数）
 import { generateShortUrl } from "../utils/share";

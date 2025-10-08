@@ -70,18 +70,13 @@ export default {
 
     // 獎品信息
     prizeInfo: "獎品資訊",
-    prizeName: "獎品名稱",
-    prizeLevel: "獎品等級",
     prizeStock: "剩餘庫存",
     prizeWinRate: "中獎機率",
 
     // 活動信息
-    activityInfo: "活動資訊",
-    activityName: "關聯活動",
     viewActivity: "查看活動",
     startTime: "開始時間",
     endTime: "結束時間",
-    sponsor: "主辦方",
 
     // 規則說明
     rules: "活動規則",
@@ -108,7 +103,6 @@ export default {
     refreshSuccess: "重新整理成功",
 
     // 活動資訊
-    activityTime: "活動時間",
     sponsorLabel: "主辦方",
     drawRules: "每人總共 {total} 次機會，每天限 {daily} 次",
 
@@ -137,7 +131,6 @@ export default {
     // 其他頁面文字
     defaultTitle: "精彩抽獎活動",
     defaultDescription: "快來參與這個精彩的抽獎活動，贏取豐厚獎品！",
-    backToList: "返回抽獎列表",
     backToHome: "返回星際港",
     dailyDraws: "今日抽獎次數",
     drawButton: "抽獎按鈕",
@@ -145,18 +138,17 @@ export default {
     prizeImage: "獎品圖片",
     joinGroup: "進群",
     enjoyBenefits: "享福利",
-    joinGroupBenefits: "進群享福利",
 
     // 新增的兩列佈局相關文本
     activityInfo: "活動資訊",
     activityName: "活動名稱",
-    sponsor: "贊助方",
+    sponsor: "主辦方",
     activityType: "活動類型",
     activityTime: "活動時間",
     lotteryRules: "抽獎規則",
     activityDescription: "活動描述",
     lotteryPrizes: "抽獎獎項",
-    prizeLevel: "等級",
+    prizeLevel: "獎項",
     prizeName: "獎品",
     probability: "概率",
     popularityKingRanking: "人氣王 TOP5",
@@ -168,8 +160,6 @@ export default {
     more: "更多",
     fullRankingTitle: "完整人氣王榜單",
     noRankingDataModal: "暫無排行榜數據",
-    viewPrizes: "查看獎品",
-    sponsor: "主辦方",
     to: "至",
   },
 
@@ -353,6 +343,10 @@ export default {
       shareInvite: "分享助力邀請",
       viewRecords: "查看助力記錄",
       popularityKing: "誰是人氣王",
+      popularityRewards: "人氣王獎勵",
+      championReward: "冠軍獎勵",
+      runnerUpReward: "亞軍獎勵",
+      thirdPlaceReward: "季軍獎勵",
       times: "次",
       inviteLinkNotReady: "邀請連結不存在或正在生成中",
       allHelpRecords: "全部助力記錄",
@@ -404,5 +398,21 @@ export default {
     unknownError: "未知錯誤",
     operationSuccess: "操作成功",
     operationFailed: "操作失敗",
+  },
+
+  // 訊息模組
+  message: {
+    online: "線上",
+    noMessages: "暫無訊息",
+    inputPlaceholder: "輸入訊息...",
+    justNow: "剛剛",
+    minutesAgo: "分鐘前",
+    hoursAgo: "小時前",
+    sendMessage: "發送訊息",
+    message: "訊息",
+    conversation: "對話",
+    send: "發送",
+    sending: "發送中...",
+    close: "關閉",
   },
 };

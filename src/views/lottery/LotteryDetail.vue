@@ -27,10 +27,10 @@
       <div
         class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex justify-between items-center"
       >
-        <div class="flex items-center">
+        <div class="flex items-center flex-1 min-w-0">
           <div
             @click="handleBackClick"
-            class="text-indigo-300 mr-3 hover:text-indigo-200 transition-colors flex items-center cursor-pointer"
+            class="text-indigo-300 mr-3 hover:text-indigo-200 transition-colors flex items-center cursor-pointer flex-shrink-0"
           >
             <svg
               class="w-5 h-5"
@@ -43,12 +43,13 @@
             </svg>
           </div>
           <h1
-            class="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-300"
+            class="text-lg sm:text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-indigo-300 truncate max-w-[calc(100vw-200px)] sm:max-w-[calc(100vw-300px)] md:max-w-[400px]"
+            :title="lottery?.name || t('lottery.lotteryDetail.title')"
           >
             {{ lottery?.name || t("lottery.lotteryDetail.title") }}
           </h1>
         </div>
-        <div class="flex space-x-3">
+        <div class="flex space-x-3 flex-shrink-0">
           <button
             v-if="isLoggedIn()"
             @click="goToMyLottery"
@@ -1079,13 +1080,35 @@
 
                 <!-- 主办方 -->
                 <div class="mt-3">
-                  <div class="flex items-center">
-                    <span class="text-indigo-300 text-xs sm:text-sm"
-                      >{{ t("lottery.lotteryDetail.sponsor") }}:</span
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                      <span class="text-indigo-300 text-xs sm:text-sm"
+                        >{{ t("lottery.lotteryDetail.sponsor") }}:</span
+                      >
+                      <span class="text-white text-xs sm:text-sm ml-2">{{
+                        lottery.sponsor
+                      }}</span>
+                    </div>
+                    <button
+                      v-if="isLoggedIn()"
+                      @click="openMessageModal('sponsor')"
+                      class="p-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 hover:text-blue-200 rounded-lg transition-all"
+                      :title="t('lottery.lotteryDetail.sendMessage')"
                     >
-                    <span class="text-white text-xs sm:text-sm ml-2">{{
-                      lottery.sponsor
-                    }}</span>
+                      <svg
+                        class="w-3 h-3"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                        ></path>
+                        <path d="M13 8H7"></path>
+                        <path d="M17 12H7"></path>
+                      </svg>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1188,7 +1211,8 @@
                 <div
                   v-for="(rank, index) in popularityRanking.slice(0, 5)"
                   :key="rank.id"
-                  class="flex items-center justify-between py-1"
+                  class="flex items-center justify-between py-1 cursor-pointer hover:bg-white/5 rounded-lg transition-colors"
+                  @click="openMessageModal('user', rank)"
                 >
                   <div class="flex items-center space-x-3">
                     <div
@@ -1521,6 +1545,13 @@
       @close="closeShareModal"
     />
 
+    <!-- 消息弹窗 -->
+    <MessageModal
+      :visible="showMessageModal"
+      :target-user="messageTargetUser"
+      @close="closeMessageModal"
+    />
+
     <!-- 完整榜单弹窗 -->
     <div
       v-if="showFullRankingModal"
@@ -1597,11 +1628,33 @@
                 </div>
               </div>
             </div>
-            <div class="text-right">
-              <div class="text-yellow-400 text-lg font-medium">
-                {{ rank.totalHelpDraws }}
-                {{ t("lottery.components.helpInvite.times") }}
+            <div class="flex items-center space-x-3">
+              <div class="text-right">
+                <div class="text-yellow-400 text-lg font-medium">
+                  {{ rank.totalHelpDraws }}
+                  {{ t("lottery.components.helpInvite.times") }}
+                </div>
               </div>
+              <button
+                v-if="isLoggedIn()"
+                @click="openMessageModal('user', rank)"
+                class="p-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 hover:text-blue-200 rounded-lg transition-all"
+                :title="t('lottery.lotteryDetail.sendMessage')"
+              >
+                <svg
+                  class="w-4 h-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                  ></path>
+                  <path d="M13 8H7"></path>
+                  <path d="M17 12H7"></path>
+                </svg>
+              </button>
             </div>
           </div>
         </div>
@@ -1699,6 +1752,7 @@ import { getUserInfo } from "../../api/user";
 import { getAppTopOffsetClass } from "../../utils/app";
 import HelpInvite from "../../components/HelpInvite.vue";
 import ShareModal from "../../components/ShareModal.vue";
+import MessageModal from "../../components/MessageModal.vue";
 import message from "../../utils/message";
 
 const route = useRoute();
@@ -1750,6 +1804,14 @@ const showNoDrawsModal = ref(false);
 
 // 分享弹窗状态
 const showShareModal = ref(false);
+
+// 消息弹窗状态
+const showMessageModal = ref(false);
+const messageTargetUser = ref({
+  uid: "",
+  nickname: "",
+  avatar: "",
+});
 
 // 聊天室ID缓存
 const cachedRoomId = ref<string | null>(null);
@@ -1926,44 +1988,70 @@ async function checkUrlParamsAndGetUserInfo() {
   const queryParams = getQueryParams();
   const { uid, uuid, token } = queryParams;
 
-  // 如果URL中包含这三个参数，则清除现有缓存并执行自动登录
+  // 如果URL中包含这三个参数，则检查是否需要清除现有缓存并执行自动登录
   if (uid && uuid && token) {
-    try {
-      console.log("检测到URL参数，清除现有缓存并执行自动登录...", {
+    // 获取当前缓存的用户信息
+    const cachedUserInfo = getUserInfoFromCache();
+
+    // 检查URL参数与当前缓存是否不同
+    const isUserInfoDifferent =
+      !cachedUserInfo ||
+      cachedUserInfo.uid !== uid ||
+      cachedUserInfo.uuid !== uuid ||
+      cachedUserInfo.token !== token;
+
+    if (isUserInfoDifferent) {
+      try {
+        console.log("检测到URL参数，清除现有缓存并执行自动登录...", {
+          uid,
+          uuid,
+          token,
+          cachedUserInfo: cachedUserInfo
+            ? {
+                uid: cachedUserInfo.uid,
+                uuid: cachedUserInfo.uuid,
+                token: cachedUserInfo.token,
+              }
+            : null,
+          reason: !cachedUserInfo ? "无缓存用户信息" : "用户信息参数不匹配",
+        });
+
+        // 清除现有缓存
+        clearUserInfo();
+        console.log("已清除现有用户缓存");
+
+        // 调用接口获取用户信息
+        const response = await getUserInfo({ uid, uuid, token });
+
+        if (
+          response.data &&
+          response.data.status === 200 &&
+          response.data.attachment
+        ) {
+          const userData = response.data.attachment;
+          console.log("获取用户信息成功:", userData);
+
+          // 保存用户信息到本地缓存
+          saveUserInfo({
+            uuid: userData.uuid,
+            token: token,
+            uid: userData.uid,
+            openName: userData.openName || "用户",
+          });
+
+          console.log("用户信息已保存到本地缓存");
+        } else {
+          console.error("获取用户信息失败:", response.data);
+        }
+      } catch (error) {
+        console.error("调用用户信息接口失败:", error);
+      }
+    } else {
+      console.log("URL参数与当前缓存用户信息相同，跳过自动登录", {
         uid,
         uuid,
         token,
       });
-
-      // 清除现有缓存
-      clearUserInfo();
-      console.log("已清除现有用户缓存");
-
-      // 调用接口获取用户信息
-      const response = await getUserInfo({ uid, uuid, token });
-
-      if (
-        response.data &&
-        response.data.status === 200 &&
-        response.data.attachment
-      ) {
-        const userData = response.data.attachment;
-        console.log("获取用户信息成功:", userData);
-
-        // 保存用户信息到本地缓存
-        saveUserInfo({
-          uuid: userData.uuid,
-          token: token,
-          uid: userData.uid,
-          openName: userData.openName || "用户",
-        });
-
-        console.log("用户信息已保存到本地缓存");
-      } else {
-        console.error("获取用户信息失败:", response.data);
-      }
-    } catch (error) {
-      console.error("调用用户信息接口失败:", error);
     }
   }
 }
@@ -2329,13 +2417,16 @@ async function fetchLotteryDetail() {
 
       // 获取人气王排行榜
       try {
-        const rankingRes = await getHelpRanking(lotteryId, 10);
+        const rankingRes = await getHelpRanking(lotteryId, 20);
         if (rankingRes.data?.code === 0) {
           popularityRanking.value = rankingRes.data.data || [];
           // 按照 totalHelpDraws 字段进行倒序排序
           popularityRanking.value.sort(
             (a, b) => (b.totalHelpDraws || 0) - (a.totalHelpDraws || 0)
           );
+
+          // 同时设置完整榜单数据，避免重复请求
+          fullRankingData.value = [...popularityRanking.value];
 
           // 获取排行榜中的用户昵称
           if (popularityRanking.value.length > 0) {
@@ -2898,42 +2989,49 @@ function closeShareModal() {
   showShareModal.value = false;
 }
 
-// 显示完整榜单
-async function showFullRanking() {
-  try {
-    const lotteryId = Number(route.params.id);
-    if (!isNaN(lotteryId)) {
-      // 获取20条排行榜数据
-      const rankingRes = await getHelpRanking(lotteryId, 20);
-      if (rankingRes.data?.code === 0) {
-        fullRankingData.value = rankingRes.data.data || [];
-        // 按照 totalHelpDraws 字段进行倒序排序
-        fullRankingData.value.sort(
-          (a, b) => (b.totalHelpDraws || 0) - (a.totalHelpDraws || 0)
-        );
+// 打开消息弹窗
+function openMessageModal(type: string, userInfo?: any) {
+  if (!isLoggedIn()) {
+    openLoginReminder();
+    return;
+  }
 
-        // 获取排行榜中的用户昵称
-        if (fullRankingData.value.length > 0) {
-          const userUids = fullRankingData.value
-            .map((rank) => rank.uid)
-            .filter((uid) => uid);
-
-          if (userUids.length > 0) {
-            const nicknames = await fetchUserNicknames(userUids);
-            // 更新排行榜中的用户昵称
-            fullRankingData.value.forEach((rank) => {
-              if (rank.uid && nicknames[rank.uid]) {
-                rank.userName = nicknames[rank.uid];
-              }
-            });
-          }
-        }
-      }
+  if (type === "sponsor") {
+    // 主办方消息
+    if (!lottery.value?.creatorUid) {
+      message.error("无法获取主办方信息", undefined, t);
+      return;
     }
+    messageTargetUser.value = {
+      uid: lottery.value.creatorUid,
+      nickname: lottery.value?.sponsor || "主办方",
+      avatar: "",
+    };
+  } else if (type === "user" && userInfo) {
+    // 用户消息
+    messageTargetUser.value = {
+      uid: userInfo.uid || userInfo.id,
+      nickname: userInfo.userName || userInfo.nickname || "用户",
+      avatar: userInfo.avatar || "",
+    };
+  }
+
+  showMessageModal.value = true;
+}
+
+// 关闭消息弹窗
+function closeMessageModal() {
+  showMessageModal.value = false;
+}
+
+// 显示完整榜单
+function showFullRanking() {
+  // 直接使用已缓存的数据，无需重新请求
+  if (fullRankingData.value.length > 0) {
     showFullRankingModal.value = true;
-  } catch (error) {
-    console.error("获取完整排行榜失败:", error);
-    showFullRankingModal.value = true;
+  } else {
+    // 如果数据为空，则显示提示
+    message.error("暂无排行榜数据", undefined, t);
   }
 }
 

@@ -254,18 +254,23 @@
 
               <!-- 活动信息 -->
               <div
-                class="flex-1 ml-3 flex flex-col justify-between"
+                class="flex-1 ml-3 flex flex-col"
                 style="height: 6rem; min-height: 6rem"
               >
-                <div>
+                <!-- 标题区域 - 限制高度 -->
+                <div class="flex-shrink-0 mb-1">
                   <h3
-                    class="text-base font-semibold text-gray-900 mb-1 line-clamp-2 text-left leading-tight"
+                    class="text-base font-semibold text-gray-900 line-clamp-1 text-left leading-tight"
+                    :title="lottery.name"
                   >
                     {{ lottery.name }}
                   </h3>
+                </div>
 
+                <!-- 中间信息区域 - 灵活空间 -->
+                <div class="flex-1 flex flex-col justify-center min-h-0">
                   <!-- 时间信息 -->
-                  <div class="flex items-center text-xs text-gray-600 mb-2">
+                  <div class="flex items-center text-xs text-gray-600 mb-1">
                     <svg
                       class="w-3 h-3 mr-1.5 text-orange-500"
                       fill="none"
@@ -284,13 +289,14 @@
                     </span>
                   </div>
 
-                  <p class="text-sm text-gray-500 mb-1 text-left">
+                  <p class="text-sm text-gray-500 text-left truncate">
                     {{ t("lottery.lotteryList.sponsor") }}:
                     {{ lottery.sponsor || "Aiskymeetup" }}
                   </p>
                 </div>
 
-                <div class="flex justify-start">
+                <!-- 按钮区域 - 固定在底部 -->
+                <div class="flex justify-start flex-shrink-0 pt-1">
                   <div
                     class="px-6 py-1.5 bg-gradient-to-r from-orange-500 to-red-500 text-white text-sm hover:from-orange-600 hover:to-red-600 transition-all flex items-center font-medium shadow-sm"
                     style="height: 1.6rem; border-radius: 50px"
@@ -358,53 +364,79 @@ async function checkUrlParamsAndGetUserInfo() {
     return;
   }
 
-  // 如果URL中包含这三个参数，则清除现有缓存并执行自动登录
+  // 如果URL中包含这三个参数，则检查是否需要清除现有缓存并执行自动登录
   if (uid && uuid && token) {
-    try {
-      console.log("检测到URL参数，清除现有缓存并执行自动登录...", {
+    // 获取当前缓存的用户信息
+    const cachedUserInfo = getUserInfoFromCache();
+
+    // 检查URL参数与当前缓存是否不同
+    const isUserInfoDifferent =
+      !cachedUserInfo ||
+      cachedUserInfo.uid !== uid ||
+      cachedUserInfo.uuid !== uuid ||
+      cachedUserInfo.token !== token;
+
+    if (isUserInfoDifferent) {
+      try {
+        console.log("检测到URL参数，清除现有缓存并执行自动登录...", {
+          uid,
+          uuid,
+          token,
+          cachedUserInfo: cachedUserInfo
+            ? {
+                uid: cachedUserInfo.uid,
+                uuid: cachedUserInfo.uuid,
+                token: cachedUserInfo.token,
+              }
+            : null,
+          reason: !cachedUserInfo ? "无缓存用户信息" : "用户信息参数不匹配",
+        });
+
+        // 清除现有缓存
+        clearUserInfo();
+        console.log("已清除现有用户缓存");
+
+        // 调用接口获取用户信息
+        const response = await getUserInfo({ uid, uuid, token });
+
+        if (
+          response.data &&
+          response.data.status === 200 &&
+          response.data.attachment
+        ) {
+          const userData = response.data.attachment;
+          console.log("获取用户信息成功:", userData);
+
+          // 保存用户信息到本地缓存
+          saveUserInfo({
+            uuid: userData.uuid,
+            token: token,
+            uid: userData.uid,
+            openName: userData.openName || "用户",
+          });
+
+          // 更新当前页面的用户信息
+          userInfo.value = getUserInfoFromCache();
+
+          // 强制更新页面状态，确保登录状态检查正确
+          setTimeout(() => {
+            // 触发响应式更新
+            userInfo.value = getUserInfoFromCache();
+          }, 100);
+
+          console.log("用户信息已保存到本地缓存");
+        } else {
+          console.error("获取用户信息失败:", response.data);
+        }
+      } catch (error) {
+        console.error("调用用户信息接口失败:", error);
+      }
+    } else {
+      console.log("URL参数与当前缓存用户信息相同，跳过自动登录", {
         uid,
         uuid,
         token,
       });
-
-      // 清除现有缓存
-      clearUserInfo();
-      console.log("已清除现有用户缓存");
-
-      // 调用接口获取用户信息
-      const response = await getUserInfo({ uid, uuid, token });
-
-      if (
-        response.data &&
-        response.data.status === 200 &&
-        response.data.attachment
-      ) {
-        const userData = response.data.attachment;
-        console.log("获取用户信息成功:", userData);
-
-        // 保存用户信息到本地缓存
-        saveUserInfo({
-          uuid: userData.uuid,
-          token: token,
-          uid: userData.uid,
-          openName: userData.openName || "用户",
-        });
-
-        // 更新当前页面的用户信息
-        userInfo.value = getUserInfoFromCache();
-
-        // 强制更新页面状态，确保登录状态检查正确
-        setTimeout(() => {
-          // 触发响应式更新
-          userInfo.value = getUserInfoFromCache();
-        }, 100);
-
-        console.log("用户信息已保存到本地缓存");
-      } else {
-        console.error("获取用户信息失败:", response.data);
-      }
-    } catch (error) {
-      console.error("调用用户信息接口失败:", error);
     }
   }
 }

@@ -71,18 +71,13 @@ export default {
 
     // Prize Info
     prizeInfo: "Prize Information",
-    prizeName: "Prize Name",
-    prizeLevel: "Prize Level",
     prizeStock: "Stock Remaining",
     prizeWinRate: "Win Rate",
 
     // Activity Info
-    activityInfo: "Activity Information",
-    activityName: "Related Activity",
     viewActivity: "View Activity",
     startTime: "Start Time",
     endTime: "End Time",
-    sponsor: "Organizer",
 
     // Rules
     rules: "Rules",
@@ -109,7 +104,6 @@ export default {
     refreshSuccess: "Refresh Success",
 
     // Activity Info
-    activityTime: "Activity Time",
     sponsorLabel: "Organizer",
     drawRules: "{total} total chances per person, {daily} per day",
 
@@ -139,7 +133,6 @@ export default {
     defaultTitle: "Amazing Lottery Event",
     defaultDescription:
       "Join this exciting lottery event and win amazing prizes!",
-    backToList: "Back to Lottery List",
     backToHome: "Back to Home",
     dailyDraws: "Today's Draws",
     drawButton: "Draw Button",
@@ -147,7 +140,6 @@ export default {
     prizeImage: "Prize Image",
     joinGroup: "Join Group",
     enjoyBenefits: "Enjoy Benefits",
-    joinGroupBenefits: "Join Group for Benefits",
 
     // New two-column layout related texts
     activityInfo: "Activity Info",
@@ -158,7 +150,7 @@ export default {
     lotteryRules: "Lottery Rules",
     activityDescription: "Activity Description",
     lotteryPrizes: "Lottery Prizes",
-    prizeLevel: "Level",
+    prizeLevel: "Prize Item",
     prizeName: "Prize",
     probability: "Probability",
     popularityKingRanking: "Popularity King TOP5",
@@ -170,8 +162,6 @@ export default {
     more: "More",
     fullRankingTitle: "Full Popularity King Ranking",
     noRankingDataModal: "No ranking data",
-    viewPrizes: "View Prizes",
-    sponsor: "Sponsor",
     to: "to",
   },
 
@@ -367,6 +357,10 @@ export default {
       shareInvite: "Share Assist Invite",
       viewRecords: "View Assist Records",
       popularityKing: "Popularity King",
+      popularityRewards: "Popularity Rewards",
+      championReward: "Champion Reward",
+      runnerUpReward: "Runner-up Reward",
+      thirdPlaceReward: "Third Place Reward",
       times: "times",
       inviteLinkNotReady: "Invite link not ready or generating",
       allHelpRecords: "All Help Records",
@@ -418,5 +412,21 @@ export default {
     unknownError: "Unknown error",
     operationSuccess: "Operation successful",
     operationFailed: "Operation failed",
+  },
+
+  // Message module
+  message: {
+    online: "Online",
+    noMessages: "No messages yet",
+    inputPlaceholder: "Type a message...",
+    justNow: "Just now",
+    minutesAgo: "minutes ago",
+    hoursAgo: "hours ago",
+    sendMessage: "Send Message",
+    message: "Message",
+    conversation: "Conversation",
+    send: "Send",
+    sending: "Sending...",
+    close: "Close",
   },
 };

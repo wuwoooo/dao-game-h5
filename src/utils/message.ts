@@ -1,5 +1,5 @@
 import { createApp } from "vue";
-import MessageModal from "../components/MessageModal.vue";
+import Toast from "../components/Toast.vue";
 
 interface MessageOptions {
   type?: "success" | "error" | "warning" | "info";
@@ -35,18 +35,12 @@ class MessageService {
       const container = this.createContainer();
 
       // 创建Vue应用实例
-      const app = createApp(MessageModal, {
+      const app = createApp(Toast, {
         visible: true,
         type: options.type || "info",
-        title: options.title,
         message: options.message,
-        confirmText: options.confirmText || "确定",
-        closable: options.closable !== false,
+        duration: options.duration || 2000,
         onClose: () => {
-          this.hide();
-          resolve();
-        },
-        onConfirm: () => {
           this.hide();
           resolve();
         },
@@ -81,7 +75,7 @@ class MessageService {
       type: "success",
       title: title || defaultTitle,
       message,
-      duration: 5000,
+      duration: 2000,
     });
   }
 

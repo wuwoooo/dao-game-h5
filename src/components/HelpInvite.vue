@@ -92,7 +92,7 @@
           </div>
           <div class="text-xs text-indigo-300">
             {{ t("lottery.components.helpInvite.totalAssists") }}
-          </div>
+        </div>
         </div>
         <div class="text-center">
           <div class="text-2xl font-bold text-purple-400">
@@ -250,6 +250,53 @@
             </svg>
             {{ t("lottery.components.helpInvite.viewRecords") }}
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 人气王奖励展示 -->
+    <div v-if="popularityRewards.length > 0" class="mb-4">
+      <div
+        class="bg-gradient-to-r from-yellow-900/20 to-orange-900/20 rounded-lg border border-yellow-500/20 p-3"
+      >
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="text-sm font-medium text-white flex items-center">
+            <svg
+              class="w-4 h-4 mr-1.5 text-yellow-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+                d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+          />
+        </svg>
+            {{ t("lottery.components.helpInvite.popularityRewards") }}
+      </h4>
+        </div>
+        <div class="flex items-center space-x-4 overflow-x-auto">
+          <div
+            v-for="(reward, index) in popularityRewards.slice(0, 3)"
+            :key="reward.id"
+            class="flex items-center space-x-2 flex-shrink-0"
+          >
+            <div
+              class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold"
+              :class="{
+                'bg-yellow-500 text-yellow-900': reward.rankPosition === 1,
+                'bg-gray-400 text-gray-900': reward.rankPosition === 2,
+                'bg-orange-500 text-orange-900': reward.rankPosition === 3,
+              }"
+            >
+              {{ reward.rankPosition }}
+            </div>
+            <span class="text-yellow-200 text-xs">{{
+              reward.rewardTitle
+            }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -539,11 +586,11 @@
                 }}</span>
                 次额外抽奖机会</span
               >
-            </li>
+        </li>
             <li class="flex items-start">
               <span class="text-indigo-400 mr-2">•</span>
               <span>助力邀请永不过期，可长期使用</span>
-            </li>
+        </li>
             <li class="flex items-start">
               <span class="text-indigo-400 mr-2">•</span>
               <span
@@ -558,11 +605,11 @@
               <span class="text-indigo-400 mr-2">•</span>
               <span>同一IP和设备在短时间内只能助力有限次数</span>
             </li>
-          </ul>
+      </ul>
         </div>
 
-        <div
-          v-if="helpConfig?.helpRuleDesc"
+      <div
+        v-if="helpConfig?.helpRuleDesc"
           class="mt-4 p-3 bg-indigo-800/30 rounded-lg border border-indigo-500/20"
         >
           <p class="text-indigo-200 text-xs">{{ helpConfig.helpRuleDesc }}</p>
@@ -591,6 +638,7 @@ import {
   getHelpRecords,
   getHelpRanking,
   getHelpConfig,
+  getPopularityRewards,
 } from "../api/lottery";
 import { getUserInfoFromCache } from "../utils/auth";
 
@@ -622,6 +670,7 @@ const helpStats = ref<any>(null);
 const helpRecords = ref<any[]>([]);
 const helpRanking = ref<any[]>([]);
 const helpConfig = ref<any>(null);
+const popularityRewards = ref<any[]>([]);
 const refreshing = ref(false);
 const checking = ref(false);
 const autoCreating = ref(false);
@@ -820,6 +869,18 @@ async function createInvite() {
   }
 }
 
+// 获取人气王奖励数据
+async function fetchPopularityRewards() {
+  try {
+    const res = await getPopularityRewards(props.lotteryId);
+    if (res.data?.code === 0) {
+      popularityRewards.value = res.data.data || [];
+    }
+  } catch (error) {
+    console.error("获取人气王奖励失败:", error);
+  }
+}
+
 // 刷新助力数据（包括统计和排行榜）
 async function refreshHelpData() {
   if (refreshing.value) return;
@@ -861,6 +922,9 @@ async function refreshHelpData() {
         }
       }
     }
+
+    // 获取人气王奖励数据
+    await fetchPopularityRewards();
   } catch (error) {
     console.error(t("lottery.components.helpInvite.refreshError"), error);
   } finally {
@@ -997,7 +1061,7 @@ async function copyAndOpenShare() {
 function openShareModal() {
   if (myInvite.value?.inviteUrl) {
     showShareModal.value = true;
-  } else {
+    } else {
     message.warning("请先创建邀请链接");
   }
 }
@@ -1076,6 +1140,9 @@ async function fetchHelpData() {
         }
       }
     }
+
+    // 获取人气王奖励数据
+    await fetchPopularityRewards();
   } catch (error) {
     console.error("获取助力数据失败:", error);
   }
@@ -1153,6 +1220,7 @@ watch(
     helpRecords.value = [];
     helpRanking.value = [];
     helpConfig.value = null;
+    popularityRewards.value = [];
     checkExistingInvite();
   }
 );
